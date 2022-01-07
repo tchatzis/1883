@@ -1,0 +1,11 @@
+mixin checkboxes( label, item )
+    if item[ label ]
+        if item[ label ].length
+            section= label
+
+            each option, id in item[ label ] 
+                input( type="checkbox", id= `${ label }${ id }` )
+                label( for= `${ label }${ id }` )= option
+                br
+
+            br

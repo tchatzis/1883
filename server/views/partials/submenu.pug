@@ -1,0 +1,3 @@
+ul.noprint
+    each link, id in menu 
+        li( class=( active == id ? "active link" : "link"  ) onclick= "location.href = '" + location( link.title ) + "';" )= link.title  

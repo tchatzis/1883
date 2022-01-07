@@ -1,0 +1,18 @@
+mixin options( label, options )
+    if Object.keys( options[ label ] ).length
+        section= label
+
+        each option in options[ label ]
+            if option.value
+                article= option.name
+
+                each value, id in option.value
+                    input( type= `${ option.type }` name= option.name id= id )
+                    if value.notes
+                        label( for= id )= value.option + " ( " + value.notes + " )"
+                    else
+                        label( for= id )= value.option
+                    br
+
+            br
+            

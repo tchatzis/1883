@@ -1,0 +1,10 @@
+mixin split( label, string, delimiter )
+    if string
+        section= label
+
+        each line, id in string.split( delimiter )
+            input( type="checkbox", id= `${ label }${ id }` )
+            label( for= `${ label }${ id }` )= line
+            br
+
+        br

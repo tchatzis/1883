@@ -1,0 +1,28 @@
+extends ../partials/layout
+
+include ../mixins/options
+include ../mixins/checkboxes
+include ../mixins/split
+
+block content
+    header
+        h1= item.title
+
+    p   
+        span.quantity= item.quantity
+        span.item= ` ${ item.item } in `
+        span.plating= `${ item.plating }`
+
+    +split( "notes", item.notes, ". " )    
+
+    +options( "options", item )
+
+    each label in [ "with", "garnish", "condiments" ]
+        +checkboxes( label, item )
+
+    +options( "sides", item )
+
+    +checkboxes( "extras", item )
+
+block sub    
+    include ../partials/submenu

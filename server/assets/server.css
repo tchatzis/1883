@@ -1,0 +1,236 @@
+:root
+{
+    
+    --font: Helvetica, Geneva, Verdana, sans-serif;
+
+    --padding: 10px;
+
+    --underline: 1px dotted silver;
+}
+
+@media print
+{   
+    .noprint
+    {
+        display: none;
+    }
+
+    article
+    {
+        font-size: 0.8em;
+        font-weight: normal;
+        text-decoration: underline;
+    }
+
+    body
+    {
+        border: none;
+        font-family: var( --font );
+        margin: 0;
+        padding: var( --padding );
+    }
+
+    div.content
+    {
+        flex: 1 1 100%;
+        background-color: transparent;
+        border-radius: 10px;
+        border: 1px solid silver;
+        padding: var( --padding );
+    }
+
+    div.flex
+    {
+        display: flex;
+        width: 100%;
+    }
+
+    h1
+    {
+        color: #666;
+        font-size: 1.5em;
+        font-weight: bold;
+    }
+
+    h1, p
+    {
+        margin-top: 0;
+    }
+
+    .item
+    {
+        color: black;
+    }
+
+    label
+    {
+        color: #666;
+        font-size: 0.8em;
+    }
+
+    .plating
+    {
+        color: red;
+    }
+
+    .quantity
+    {
+        color: green;
+    }
+
+    section
+    {
+        border-bottom: var( --underline );
+        color: black;
+        font-weight: bold;
+        text-transform: capitalize;
+        width: 100%;
+    }
+
+    ul
+    {
+        flex: 0;
+        margin: 0;
+    }
+}
+
+@media screen
+{
+    a
+    {
+        font-family: var( --font );
+        font-size: 1em;
+        text-decoration: none;
+    }
+
+    a:link, a:visited
+    {
+        color: blue;
+    }
+
+    a:hover
+    {
+        color: green;
+    }
+
+    .active
+    {
+        background-color: lightskyblue;
+    }
+
+    article
+    {
+        font-size: 0.8em;
+        font-weight: normal;
+        text-decoration: underline;
+    }
+
+    body
+    {
+        border: none;
+        font-family: var( --font );
+        margin: 0;
+        padding: var( --padding );
+    }
+
+    div.content
+    {
+        flex: 1 1 100%;
+        background-color: transparent;
+        border-radius: 10px;
+        border: 1px solid silver;
+        padding: var( --padding );
+    }
+
+    div.flex
+    {
+        display: flex;
+        width: 100%;
+    }
+
+    h1
+    {
+        color: #666;
+        font-size: 1.5em;
+        font-weight: bold;
+    }
+
+    h1, p
+    {
+        margin-top: 0;
+    }
+
+    .item
+    {
+        color: black;
+    }
+
+    label
+    {
+        color: #666;
+        font-size: 0.8em;
+    }
+
+    .link
+    {
+        color: #666;
+        font-size: 0.7em;
+        font-family: verdana;
+    }
+
+    li.link
+    {
+        border: 1px solid silver;
+        border-radius: 4px;
+        cursor: pointer;
+        display: block;
+        
+        list-style-type: none;
+        margin: 0 0 1px 0;
+        padding: 0 10px 0 10px;
+        white-space: nowrap;
+    }
+
+    .link:hover
+    {
+        background-color: lightgreen;
+    }
+
+    nav
+    {
+        flex: 0;
+        padding: 10px;
+    }
+
+    p.footer
+    {
+        color: gray;
+        font-size: 0.7em;
+        text-align: center;
+    }
+
+    .plating
+    {
+        color: red;
+    }
+
+    .quantity
+    {
+        color: green;
+    }
+
+    section
+    {
+        border-bottom: var( --underline );
+        color: black;
+        font-weight: bold;
+        text-transform: capitalize;
+        width: 100%;
+    }
+
+    ul
+    {
+        flex: 0;
+        margin: 0;
+    }
+}
