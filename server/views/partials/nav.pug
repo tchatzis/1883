@@ -1,8 +1,5 @@
 nav.noprint
-    a(href="/") Home
-    br
-    a(href="/checklists") Checklists
-    br
-    a(href="/documents") Documents
-    br
-    a(href="/templates") Templates
+    each link in nav.main
+        if link.label
+            a( href= link.url )= link.label
+            br

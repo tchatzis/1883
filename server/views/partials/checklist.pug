@@ -5,6 +5,8 @@ include ../mixins/checkboxes
 include ../mixins/split
 
 block content
+    - var item = data[ id ]
+
     header
         h1= item.title
 

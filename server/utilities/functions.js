@@ -1,4 +1,5 @@
 const fs = require( "fs" );
+const mime = require( "mime-types" );
 const path = require( "path" );
 
 function capitalize( str )
@@ -25,7 +26,7 @@ function directoryInfo( dirname, callback )
 
 function fileInfo( dirname, filename )
 {
-    var dir = path.join( __dirname, dirname );
+    var dir = path.join( __dirname, dirname ).replace( "/utilities", "" );
     var file = path.join( dir, filename );
     var type = mime.lookup( file );
     var stream = fs.createReadStream( file );
@@ -41,6 +42,6 @@ function fileInfo( dirname, filename )
     };
 };
 
-exports.capitalize = capitalize;
-exports.directoryInfo = directoryInfo;
-exports.fileInfo = fileInfo;
+module.exports.capitalize = capitalize;
+module.exports.directoryInfo = directoryInfo;
+module.exports.fileInfo = fileInfo;

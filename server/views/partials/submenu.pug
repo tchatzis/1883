@@ -1,3 +1,4 @@
 ul.noprint
-    each link, id in menu 
-        li( class=( active == id ? "active link" : "link"  ) onclick= "location.href = '" + location( link.title ) + "';" )= link.title  
+    if submenu
+        each link, id in submenu 
+            li( class=( active == id ? "active link" : "link"  ) onclick= `location.href = '${ path }/${ location( link.title ) }';` )= link.title  

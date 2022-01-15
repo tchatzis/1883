@@ -1,3 +1,3 @@
 ul
     each file in files
-            li.link( onclick= "location.href ='" + `${ path }/${ file }` + "';" )= file
+        li.link( onclick= `location.href ='${ file }';` )= file

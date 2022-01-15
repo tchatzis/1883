@@ -1,0 +1,11 @@
+mixin radio( collection, label, array )
+    if array.length
+        div.label= label
+
+        div.input
+            each option, id in array 
+            
+                input( type="checkbox", name= `${ collection }.${ label }`, id= `${ label }${ id }`, required="true", value= option )
+                label( for= `${ label }${ id }` )= `${ option } `
+
+        br

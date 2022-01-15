@@ -1,0 +1,23 @@
+extends ../../partials/layout
+
+include ../mixins/radio
+
+block content
+    h1= `${ title } ${ collection }`
+
+    form( method="post" )
+
+        div.label Label
+            div.input
+                input( type="input", name=`${ collection }.label`, required="true" )
+
+        div.label Order Number
+            div.input
+                input( type="input", name=`${ collection }.order number`, pattern="[0-9]{7}", maxlength="7", title="Must be 7 digits" )   
+
+        +radio( collection, "storage", [ "Walk In Cooler", "Walk In Freezer", "Main Freezer", "Dry Store" ] )
+
+        div.label
+            div.input
+                input( type="submit" )
+        

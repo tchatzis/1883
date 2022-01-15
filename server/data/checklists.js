@@ -30,7 +30,7 @@ const options =
             option: "Cheddar",
         },
         {
-            option: "Monterey Jack"
+            option: "Pepper Jack"
         },
         {
             option: "American"
@@ -38,6 +38,9 @@ const options =
         {
             option: "Mozzarella"
         },
+        { 
+            option: "Provolone"
+        }
     ],
     "Berries":
     [
@@ -345,7 +348,7 @@ var data =
         title: "Fresh Angus Beef Burgers",
         quantity: 16,
         item: "Grilled Patties",
-        with: [],
+        with: [ "Angus Beef Patties", "Buns" ],
         options: [ new Options( "Hamburger Buns" ) ],
         extras: [],
         sides: [ new Options( "Assorted Sliced Cheese Tray", "checkbox" ), new Options( "LTOP Tray", "checkbox" ) ],
@@ -580,15 +583,12 @@ var data =
     }*/
 ];
 
-var menu = data.sort( ( a, b ) => ( a.title > b.title ) ? 1 : -1 );
+var submenu = data.sort( ( a, b ) => ( a.title > b.title ) ? 1 : -1 );
 
-exports.data = data;
-
-exports.location = function( title )
+module.exports.location = function( title )
 {   
-    var id = data.findIndex( ( obj ) => obj.title == title );
-    
-    return "/checklists/" + id;
+    return data.findIndex( ( obj ) => obj.title == title );
 };
 
-exports.menu = menu;
+module.exports.submenu = submenu;
+module.exports.data = data;

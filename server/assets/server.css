@@ -131,6 +131,7 @@
         font-family: var( --font );
         margin: 0;
         padding: var( --padding );
+        user-select: none;
     }
 
     div.content

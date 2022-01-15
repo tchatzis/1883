@@ -1,1 +1,6 @@
-node_modules/
+**/secrets.json
+**/firebase-debug.log
+**/node_modules
+.vscode
+.firebaserc
+firestore.json
