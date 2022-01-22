@@ -1,5 +1,6 @@
-const { initializeApp, applicationDefault, cert } = require('firebase-admin/app');
-const { getFirestore, Timestamp, FieldValue } = require('firebase-admin/firestore');
+const { initializeApp, applicationDefault, cert } = require( "firebase-admin/app" );
+const { getFirestore, Timestamp, FieldValue } = require( "firebase-admin/firestore" );
+
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 

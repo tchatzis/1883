@@ -1,0 +1,22 @@
+extends ../partials/layout
+
+block content 
+    h1= title
+
+    div#content
+
+block sub 
+    div#sub
+
+block script 
+    script.
+        var render = async function()
+        {
+            var data = new window.app.Data();
+            
+            await data.select( { url: `!{ path }/select`, sort: "label" } );
+
+            data.render( "table" );
+        }
+
+        window.addEventListener( "load", render );

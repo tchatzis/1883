@@ -1,0 +1,26 @@
+block sub
+    div.content
+        form( method="post", action=`/db/${ query.from }/update` )
+
+            div.column Label
+                div.input
+                    input( type="input", name=`${ query.from }.label`, required="true" )
+
+            div.column Description
+                div.input
+                    input( type="input", name=`${ query.from  }.description` )
+
+            div.column Size
+                div.input
+                    input( type="input", name=`${ query.from  }.size` )
+
+            div.column Order Number
+                div.input
+                    input( type="input", name=`${ query.from  }.order number`, pattern="[0-9]{7}", maxlength="7", title="Must be 7 digits" )   
+
+            +radio( query.from , "storage", [ "Walk In Cooler", "Walk In Freezer", "Main Freezer", "Dry Store" ] )
+
+            div.column
+                div.input
+                    input( type="submit", value="Add" )
+        

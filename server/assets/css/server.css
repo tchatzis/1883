@@ -42,7 +42,6 @@
     div.flex
     {
         display: flex;
-        width: 100%;
     }
 
     h1
@@ -129,24 +128,29 @@
     {
         border: none;
         font-family: var( --font );
+        height: 100vh;
         margin: 0;
+        overflow: hidden;
         padding: var( --padding );
         user-select: none;
+        width: 100vw;
     }
 
     div.content
     {
-        flex: 1 1 100%;
+        flex: 0 1 70%;
         background-color: transparent;
         border-radius: 10px;
         border: 1px solid silver;
+        max-height: calc( 90vh );
+        overflow-x: hidden;
+        overflow-y: auto;
         padding: var( --padding );
     }
 
     div.flex
     {
         display: flex;
-        width: 100%;
     }
 
     h1

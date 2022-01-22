@@ -1,0 +1,21 @@
+extends ../../partials/layout
+
+include ../mixins/radio
+
+block content
+    h1= title
+
+    table
+        thead
+            each key in query.data.keys 
+                td.column= key
+
+        each obj in query.data.object
+            - var name = Object.keys( obj );
+
+            tr.row( onclick=`location.href = '/db/${ query.from }/${ name }';` ) 
+                each key in query.data.keys 
+                    td.cell= obj[ name ][ key ]
+
+block sub
+    include insert

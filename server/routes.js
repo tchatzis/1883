@@ -19,7 +19,7 @@ const Menu = function( name )
     {
         var vars = variables || {};
             vars.nav = nav;
-            vars.title = label;
+            vars.title = label || variables.title;
         
         links.push( new Link( label, endpoint ) );
 
@@ -33,14 +33,13 @@ const main = new Menu( "main" );
 
 const Route = {};
 
-Route.DB = function( label, endpoint, template, variables, query )
-{
+Route.DB = function( label, endpoint, template )
+{     
     this.label = label;
     this.template = template;
     this.endpoint = endpoint;
     this.function = "db";
-    this.variables = main.append( label, endpoint, Object.assign( variables, { title: label } ) ); 
-    this.query = query;
+    this.variables = main.append( label, endpoint, { title: label } );
 };
 
 Route.Directory = function( label, endpoint, template, variables )
@@ -102,7 +101,8 @@ Route.Static = function( label, endpoint, template, variables )
 var routes =
 [
     new Route.Static( "Home", "/", "nosubmenu" ),
-    new Route.DB( "", "/db/create/:data", "data", {}, "select * from stock order by label desc" ),// , { action: "select", from: "/stock", where: [ [ "born", ">=", 1815 ] ], orderby: [ "first", "desc" ], limit: 2 }, "select * from users where first >= A order by first desc limit 1"*/
+    new Route.DB( "Stock", "/db/stock", "table" ),
+    new Route.DB( "Group", "/db/group", "table" ),
     new Route.Static( "Events", "/events", "submenu" ),
     new Route.Static( "Menus", "/menus", "submenu" ),
     new Route.ID( "", "/checklists/:id", "partials/checklist", checklists ),
@@ -115,45 +115,62 @@ var routes =
 
 module.exports.nav = nav;
 
-module.exports.get = function( server )
+module.exports.define = function( server )
 {
     var functions = {};
 
-        functions[ "db" ] = function( params )
-        {   
-            if ( params.query )
-                new queries.Query( params, get );
+        functions[ "db" ] = async function( params )
+        {     
+            server.get( `/db/:from`, ( req, res ) =>
+            {   
+                res.locals.path = req.path;
+                res.render( `db/${ params.template }`, params.variables );
+            } );
 
-            function get( params )
-            { 
-                server.get( params.endpoint, ( req, res ) =>
-                {   
-                    render( res, res, params );
-                } );
+            server.post( `/db/:from/delete/:id`, async function( req, res )
+            {    
+                var query = new queries.Query( { query: `delete from ${ req.params.from } where id = ${ req.params.id }` } );
 
-                post( params );
-            }
+                await query.exec();
 
-            function post( params )
-            {
-                server.post( params.endpoint, ( req, res ) =>
-                {   
-                    var data = extract( req.body );
+                res.json( query.data );
+            } );
 
-                    for ( let col in data )
-                    {       
-                        params.query = `INSERT INTO ${ col } }`;
-                        params.payload = data[ col ];
-                        
-                        new queries.Query( params, ( params ) => render( res, req, params ) );
-                    }
-                } );
-            }
+            server.post( `/path`, async function( req, res )
+            {                    
+                var path = new queries.Path( req.body );
 
-            function render( res, req, params )
-            {
-                res.render( req.url.substring( 1 ), params.variables ); 
-            }
+                await path.exec( req.body );
+
+                res.json( path.data );
+            } );
+
+            server.post( `/query`, async function( req, res )
+            {                   
+                var query = new queries.Query( { query: req.body.query } );
+
+                await query.exec();
+
+                res.json( query.data );
+            } );
+            
+            server.post( `/db/:from/select`, async function( req, res )
+            {    
+                var query = new queries.Query( { query: `select * from ${ req.params.from }` } );
+
+                await query.exec();
+
+                res.json( query.data );
+            } );
+
+            server.post( `/db/:from/update/:id`, async function( req, res )
+            {      
+                var query = new queries.Query( { query: `update ${ req.params.from } where id = ${ req.params.id }` } );
+
+                await query.exec( req.body );
+
+                res.json( query.data );
+            } );
         };  
     
         functions[ "directory" ] = function( params )
@@ -222,7 +239,7 @@ module.exports.get = function( server )
     routes.forEach( params => functions[ params.function ].call( null, params ) );
 };
 
-function extract( body )
+/*function extract( body )
 {
     var data = {};
 
@@ -261,4 +278,4 @@ function extract( body )
     }
 
     return data;
-}
+}*/

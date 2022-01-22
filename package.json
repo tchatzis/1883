@@ -1,7 +1,7 @@
 {
   "dependencies": {
     "express": "^4.17.2",
-    "firebase": "^8.10.0",
+    "firebase": "^9.6.3",
     "firebase-admin": "^10.0.1",
     "pug": "^3.0.2"
   }

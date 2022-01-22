@@ -2,9 +2,9 @@
 const fs = require( "fs" );
 const path = require( "path" );
 const express = require( "express" );
+const bodyParser = require( "body-parser" );
 // local
 const routes = require( "./routes" );
-const bodyParser = require('body-parser');
 
 const server = express();
 const hostname = "127.0.0.1";
@@ -16,7 +16,9 @@ server.set( "view engine", "pug" );
 server.use( bodyParser.urlencoded( { extended: false } ) );
 server.use( bodyParser.json() );
 
-server.use( express.static( path.join( __dirname, "assets" ) ) );
+server.use( "/css", express.static( path.join( __dirname, "assets/css" ) ) );
+server.use( "/js", express.static( path.join( __dirname, "assets/scripts" ) ) );
+server.use( "/", express.static( path.join( __dirname, "assets/favicon" ) ) );
 
 server.listen( port, () => 
 {
@@ -24,4 +26,4 @@ server.listen( port, () =>
 } );
 
 // set routes
-routes.get( server );
+routes.define( server );

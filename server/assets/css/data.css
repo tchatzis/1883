@@ -1,0 +1,51 @@
+.active
+{
+    background-color: orange;
+}
+
+.cell
+{
+    border: 1px solid silver;
+    color: #333;
+    font-family: courier;
+    font-size: 0.7em;
+    
+}
+
+.column
+{
+    color: black;
+    font-size: 0.8em;
+    font-weight: bold;
+    text-transform: capitalize;
+}
+
+.delete
+{
+    background-color:tomato;
+    transition: background-color 3000ms linear;
+}
+
+table
+{
+    border-collapse: collapse;
+    position: relative;
+}
+
+tr.row:hover
+{
+    background-color: lightblue;
+    cursor: pointer;
+}
+
+td
+{
+    padding: 2px 10px 2px 5px;
+    white-space: nowrap;
+}
+
+.update
+{
+    background-color: lightgreen;
+    transition: background-color 1000ms linear;
+}
