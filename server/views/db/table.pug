@@ -14,9 +14,9 @@ block script
         {
             var data = new window.app.Data();
             
-            await data.select( { url: `!{ path }/select`, sort: "label" } );
+            await data.select( { url: "!{ path }/select", sort: "!{ sort }" } );
 
-            data.render( "table" );
+            data.render( { display: "table", sub: "!{ sub }", tab: "!{ tab }" } );
         }
 
         window.addEventListener( "load", render );

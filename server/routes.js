@@ -33,13 +33,13 @@ const main = new Menu( "main" );
 
 const Route = {};
 
-Route.DB = function( label, endpoint, template )
+Route.DB = function( label, endpoint, template, variables )
 {     
     this.label = label;
     this.template = template;
     this.endpoint = endpoint;
     this.function = "db";
-    this.variables = main.append( label, endpoint, { title: label } );
+    this.variables = main.append( label, endpoint, Object.assign( variables, { title: label } ) );
 };
 
 Route.Directory = function( label, endpoint, template, variables )
@@ -101,10 +101,18 @@ Route.Static = function( label, endpoint, template, variables )
 var routes =
 [
     new Route.Static( "Home", "/", "nosubmenu" ),
-    new Route.DB( "Stock", "/db/stock", "table" ),
-    new Route.DB( "Group", "/db/group", "table" ),
-    new Route.Static( "Events", "/events", "submenu" ),
-    new Route.Static( "Menus", "/menus", "submenu" ),
+    new Route.DB( "Stock", "/db/stock", "table", { sub: null, tab: "storage", sort: "label" } ),
+    new Route.DB( "Items", "/db/item", "table", { sub: null, tab: "group", sort: "label" } ),
+    new Route.DB( "Allergen", "/db/allergen", "table", { sub: "sequence", sort: "sequence" } ),
+    new Route.DB( "Group", "/db/group", "table", { sub: "sequence", sort: "sequence" } ),
+    new Route.DB( "Kitchen", "/db/kitchen", "table", { sub: "sequence", sort: "sequence" } ),
+    new Route.DB( "Plating", "/db/plating", "table", { sub: "sequence", sort: "sequence" } ),
+    new Route.DB( "Process", "/db/process", "table", { sub: "sequence", sort: "sequence" } ),
+    new Route.DB( "Status", "/db/status", "table", { sub: "sequence", sort: "sequence" } ),
+    new Route.DB( "Temp", "/db/temp", "table", { sub: "sequence", sort: "sequence" } ),
+    
+    //new Route.Static( "Events", "/events", "submenu" ),
+    //new Route.Static( "Menus", "/menus", "submenu" ),
     new Route.ID( "", "/checklists/:id", "partials/checklist", checklists ),
     new Route.Submenu( "Checklists", "/checklists", null, checklists ),
     new Route.File( "", "/documents/:id", null, { directory: "assets/documents" } ),
@@ -121,21 +129,13 @@ module.exports.define = function( server )
 
         functions[ "db" ] = async function( params )
         {     
-            server.get( `/db/:from`, ( req, res ) =>
+            server.get( `${ params.endpoint }`, ( req, res ) =>
             {   
                 res.locals.path = req.path;
+
                 res.render( `db/${ params.template }`, params.variables );
             } );
-
-            server.post( `/db/:from/delete/:id`, async function( req, res )
-            {    
-                var query = new queries.Query( { query: `delete from ${ req.params.from } where id = ${ req.params.id }` } );
-
-                await query.exec();
-
-                res.json( query.data );
-            } );
-
+            
             server.post( `/path`, async function( req, res )
             {                    
                 var path = new queries.Path( req.body );
@@ -150,6 +150,25 @@ module.exports.define = function( server )
                 var query = new queries.Query( { query: req.body.query } );
 
                 await query.exec();
+
+                res.json( query.data );
+            } );
+
+            // CRUD
+            server.post( `/db/:from/delete/:id`, async function( req, res )
+            {    
+                var query = new queries.Query( { query: `delete from ${ req.params.from } where id = ${ req.params.id }` } );
+
+                await query.exec();
+
+                res.json( query.data );
+            } );
+
+            server.post( `/db/:from/insert`, async function( req, res )
+            {      
+                var query = new queries.Query( { query: `insert into ${ req.params.from }` } );
+
+                await query.exec( req.body );
 
                 res.json( query.data );
             } );

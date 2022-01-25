@@ -1,6 +1,7 @@
 .active
 {
     background-color: orange;
+    color: black;
 }
 
 .cell
@@ -15,6 +16,7 @@
 .column
 {
     color: black;
+    clear: both;
     font-size: 0.8em;
     font-weight: bold;
     text-transform: capitalize;
@@ -22,14 +24,78 @@
 
 .delete
 {
-    background-color:tomato;
+    background-color:tomato !important;
     transition: background-color 3000ms linear;
+}
+
+input
+{
+    border: 1px solid #666;
+    border-radius: 4px;
+    margin: 1px;
+    outline: none;
+}
+
+input[ type = number ]
+{
+    max-width: 7em;
+}
+
+.insert
+{
+    background-color: lightgreen !important;
+    transition: background-color 3000ms linear;
+}
+
+.right
+{
+    float: right;
+}
+
+.tab
+{
+    border: 1px solid silver;
+    border-radius: 0 8px 0 0;
+    color: #666;
+    border-left: 1px solid transparent;
+    font-size: 0.7em;
+    padding: 2px 5px 2px 2px;
+    white-space: nowrap;
+}
+
+.tabs
+{
+    border: 1px solid silver;
+    font-size: 0.8em;
+    font-weight: bold;
+    text-transform: capitalize;
+    padding: 2px 5px 2px 2px;
+    text-transform: capitalize;
+}
+
+.tab:hover
+{
+    background-color: orange;
+    color: black;
+    cursor: pointer;
+    border: 1px solid black;
+}
+
+.underline
+{
+    flex: 1 1 100%;
+    border-bottom: 1px solid silver;
 }
 
 table
 {
     border-collapse: collapse;
     position: relative;
+}
+
+tr.row
+{
+    background-color: transparent;
 }
 
 tr.row:hover
@@ -46,6 +112,6 @@ td
 
 .update
 {
-    background-color: lightgreen;
+    background-color: violet !important;
     transition: background-color 1000ms linear;
 }

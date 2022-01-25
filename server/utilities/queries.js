@@ -174,7 +174,7 @@ const action =
 {
     collection:
     {
-        delete: async function( query, data )
+        delete: async function( query )
         {
             var id = query.where[ 0 ][ 2 ];
             var doc = db.collection( query.from ).doc( id );
@@ -183,10 +183,8 @@ const action =
             return new Data( { [ id ]: {} } );
         },
         insert: async function( query, data )
-        {
-            var ref = db.collection( query.from );
-
-            await ref.doc().set( data );
+        {   
+            var ref = await db.collection( query.from ).add( data );
 
             return new Data( { [ ref.id ]: data } );
         },

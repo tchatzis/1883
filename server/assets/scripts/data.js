@@ -15,7 +15,7 @@ const Data = function()
             for ( let key in obj )
             { 
                 if ( obj.hasOwnProperty( key ) )
-                {
+                {                
                     let value = isNaN( obj[ key ][ field ] ) ? obj[ key ][ field ].toLowerCase() : obj[ key ][ field ];
                     let index = values.findIndex( val => val >= value );
 
@@ -36,12 +36,37 @@ const Data = function()
         return sorted;
     }
 
+    this.append = function( result )
+    {
+        var doc = result.data[ 0 ][ result.docs ];
+
+        scope.data.push( { [ result.docs ]: doc } );
+    };
+
     this.delete = async function( params )
     {
         var response = await fetch( params.url, { method: "post" } );
         var result = await response.json();
 
         templates.change.call( scope, params, result );
+    };
+
+    this.insert = async function( params )
+    {   
+        var response = await fetch( params.url, { method: "post", body: JSON.stringify( params.body ), headers: { "Accept": "application/json", "Content-Type": "application/json" } } );
+        var result = await response.json();
+
+        scope.append( result );
+        scope.sorter( scope.sort );
+        templates.data = [ ...scope.data ];
+
+        templates.change.call( scope, params, result );
+    };
+
+    this.grow = async function( params )
+    {   
+        var response = await fetch( params.url, { method: "post", body: JSON.stringify( params.body ), headers: { "Accept": "application/json", "Content-Type": "application/json" } } );
+        var result = await response.json();
     };
 
     this.modify = function( result )
@@ -78,7 +103,9 @@ const Data = function()
     };
 
     this.render = function( params )
-    {
+    {   
+        Object.assign( scope, params );
+
         templates.init.call( scope, params );
     };
 

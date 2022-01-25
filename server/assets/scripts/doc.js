@@ -18,14 +18,17 @@ function ce( tag )
     return document.createElement( tag );
 }
 
-function clear( tag )
-{
-    var el = document.querySelector( tag );
-    
-    Array.from( el.children ).forEach( child =>
+function clear( el, css )
+{   
+    Array.from( el.parentNode.children ).forEach( child =>
     {
-        child.classList.remove( "active" );
+        child.classList.remove( css );
     } );
+}
+
+function fe( parent, tag )
+{
+    return parent.querySelector( tag );
 }
 
 var doc = 
@@ -33,7 +36,8 @@ var doc =
     ac: ac,
     ce: ce,
     bubble: bubble,
-    clear: clear
+    clear: clear,
+    fe: fe
 };
 
 export default doc;

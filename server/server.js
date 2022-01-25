@@ -19,6 +19,7 @@ server.use( bodyParser.json() );
 server.use( "/css", express.static( path.join( __dirname, "assets/css" ) ) );
 server.use( "/js", express.static( path.join( __dirname, "assets/scripts" ) ) );
 server.use( "/", express.static( path.join( __dirname, "assets/favicon" ) ) );
+server.use( "/images", express.static( path.join( __dirname, "assets/images" ) ) );
 
 server.listen( port, () => 
 {
