@@ -10,13 +10,8 @@ block sub
 
 block script 
     script.
-        var render = async function()
+        window.addEventListener( "load", () =>
         {
-            var data = new window.app.Data();
-            
-            await data.select( { url: "!{ path }/select", sort: "!{ sort }" } );
-
-            data.render( { display: "table", sub: "!{ sub }", tab: "!{ tab }" } );
-        }
-
-        window.addEventListener( "load", render );
+            var template = new window.app.Templates();
+                template.init( { content: { display: "table" }, columns: {}, data: { display: "tbody" }, sub: { display: "!{ sub }" }, tabs: { display: "tabs", config: { field: "!{ tab }" } } }, { path: "!{ path }", sort: "!{ sort }" } );
+        } );

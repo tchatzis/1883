@@ -1,63 +1,27 @@
-import Data from "./data.js";
-import doc from "./doc.js";
+import docs from "./docs.js";
 import parse from "./forms.js";
 
-var Widgets = function()
+var Widgets = function( data )
 {   
-    var scope = this;
-    
-    async function load( params )
-    {
-        var d = new Data();
-
-        if ( params.path )
-        {
-            await d.path( params );
-
-            let values = [];
-            let data = {};
-            
-            d.data.forEach( row =>
-            {
-                data.name = Object.keys( row )[ 0 ];
-                data.values = row[ data.name ];
-            } );
-
-            this.data = data;
-        }
-
-        if ( params.query )
-        {
-            await d.query( { url: `/query`, sort: params.sort, query: params.query } );
-
-            let values = [];
-            
-            d.data.forEach( row =>
-            {
-                values.push( row[ Object.keys( row ) ] );
-            } );
-
-            this.data = { name: params.name, values: values };
-        }
-
-        this.populate();
-    }
+    var widgets = this;
 
     function block( params )
     {   
-        var wrapper = doc.ce( "div" );
+        var wrapper = docs.ce( "div" );
             wrapper.classList.add( "field" );
-        doc.ac( params.element, wrapper );
+        docs.ac( params.element, wrapper );
         
-        var label = doc.ce( "div" );
+        var label = docs.ce( "div" );
             label.classList.add( "column" );
-        doc.ac( wrapper, label );
+        if ( params.headless )
+            label.style.display = "none";
+        docs.ac( wrapper, label );
 
-        var div = doc.ce( "div" );
+        var div = docs.ce( "div" );
             div.classList.add( "input" );
-        doc.ac( wrapper, div );
+        docs.ac( wrapper, div );
 
-        return { label: label, div: div, wrapper: wrapper };
+        return { label, div, wrapper };
     }
 
     function listeners( el, params, data )
@@ -67,294 +31,377 @@ var Widgets = function()
     }
 
     this.Array = function( params )
-    {
-        var widgets = new Widgets();
+    {   
+        var scope = this;
+        var section = docs.ce( "section" );
+            section.title = params.name;
 
-        function wrapper( d )
+        function wrapper( d, parent )
         {
-            d++;
-            
-            var el = block( params );
-                el.label.innerText = params.name || "\n";
-
             var id = `${ params.name }${ d }`;
+            
+            var wrapper = docs.ce( "div" );
+                wrapper.classList.add( "field" );
+                wrapper.dataset.id = id;
+            docs.ac( parent, wrapper );
 
-            var div = doc.ce( "div" );
-                div.classList.add( "flex" );
-                div.dataset.row = id;
-            doc.ac( el.div, div );
-
-            var form = doc.ce( "form" );
+            var form = docs.ce( "form" );
                 form.setAttribute( "method", "post" );
-                form.addEventListener( "submit", ( e ) => this.add( e ), false );
+                form.addEventListener( "submit", d < 0 ? scope.add : scope.update, false );
                 form.id = id;
-            doc.ac( div, form );
+            docs.ac( wrapper, form );
 
-            return { id, div };
+            // hide field name
+            if ( d < 0 )
+            {
+                let label = docs.ce( "div" );
+                    label.classList.add( "column" );
+                    label.innerText = params.name || "\n";
+                docs.ac( wrapper, label );
+            }
+
+            var row = docs.ce( "div" );
+                row.classList.add( "flex" );
+                row.dataset.row = id;
+            docs.ac( wrapper, row );
+
+            d++;
+
+            return { id, row };
         }
 
         this.add = function( e )
         {
             e.preventDefault();
 
-            console.log( parse( e ) );
-            console.log( params );
-            console.log( e );
+            var row = parse( e );
+            var array = params.values[ params.name ];
+                array.push( row );
+
+            e.target.reset();
+
+            scope.populate();
         };
 
         this.delete = function( e )
         {
-            e.preventDefault();
+            var array = params.values[ params.name ];
+                array.splice( e.dataset.index, 1 );
 
-            console.log( e );
+            scope.populate();
         };
 
-        this.reset = function( e )
+        this.update = function( e )
         {
             e.preventDefault();
 
-            console.log( e );
-        };
+            var row = parse( e );
+            var array = params.values[ params.name ];
+                array[ e.submitter.dataset.index ] = row;
+        }; 
 
         // run once
         this.init = function()
         {
-            this.row( -1, {} );
+            var { id, row } = wrapper( -1, params.element );
+            
+            params.widgets.forEach( widget => 
+            {
+                var params = { ...widget.params  };
+                    params.Form = id;
+                    params.element = row;
+                    params.placeholder = widget.params.name;
+
+                new widgets[ widget.class ]( params );
+            } );
+
+            new widgets.Input( { type: "submit", Form: id, value: "\u002b", element: row } );
+
+            docs.ac( params.element, section );
+
             this.populate();
         };
 
         // create the row of controls
         this.row = function( d, data )
         {
-            var { id, div } = wrapper( d );
-
-            console.log( d, id, data )
-
+            var { id, row } = wrapper( d, section );
+            
             params.widgets.forEach( widget => 
             {
-                widget.params.Form = id;
-                widget.params.element = div;
-                widget.params.value = data[ widget.params.name ] || "";
-                new widgets[ widget.class ]( widget.params );
+                var params = { ...widget.params  };
+                    params.Form = id;
+                    params.element = row;
+                    params.placeholder = widget.params.name;
+                    params.value = data[ widget.params.name ] || "";
+                    params.headless = true;
+
+                new widgets[ widget.class ]( params );
             } );
 
-            new widgets.Input( { type: "submit", Form: id, value: "+", element: div } );
-            new widgets.Input( { type: "button", Form: id, value: "-", element: div } );
+            new widgets.Input( { type: "submit", Form: id, value: "\u2705", element: row, headless: true, "data-index": d } );
+            new widgets.Input( { type: "button", Form: id, value: "\u274c", element: row, headless: true, "data-index": d, listeners: [ { event: "click", handler: scope.delete } ] } );
         };
 
         // loop through data
-        this.populate = () => params.data[ params.name ].forEach( ( data, d ) => this.row( d, data ) );
+        this.populate = () => 
+        {
+            section.innerHTML = null; 
+
+            params.values[ params.name ] = params.values[ params.name ] || [];
+            params.values[ params.name ].forEach( ( data, d ) => this.row( d, data ) );
+
+            scope.values = params.values;
+        };
 
         this.init();
     };
 
     this.Checkboxes = function( params )
     {
-        var el = block( params );
+        var { label, div, wrapper } = block( params );
 
         this.populate = function()
         {
             if ( this.data )
             {
-                el.label.innerText = this.data.name
+                label.innerText = this.data.name
 
                 this.data.values.forEach( ( value, i ) =>
                 {
                     let predicate = false;
-                    let input = doc.ce( "input" );
+                    let input = docs.ce( "input" );
                         input.type = "checkbox";
                         input.name = this.data.name;
                         input.id = `${ this.data.name }${ i }`;
                         input.value = value[ params.field ];
+                    if ( params.Form )
+                        input.setAttribute( "Form", params.Form );
                     if ( Array.isArray( params.value ) )
                         predicate = params.value.some( val => val == value[ params.field ] );
                     else
                         predicate = params.value == value[ params.field ]
                     if ( predicate )
                         input.setAttribute( "checked", "" );
-                    doc.ac( el.div, input );
+                    docs.ac( div, input );
 
-                    let label = doc.ce( "label" );
+                    let label = docs.ce( "label" );
                         label.setAttribute( "for", input.id );
                         label.innerText = value[ params.field ] + " ";
-                    doc.ac( el.div, label );
+                    docs.ac( div, label );
                     
                     if ( !params.nobreak )
                     {
-                        let br = doc.ce( "br" );
-                        doc.ac( el.div, br );
+                        let br = docs.ce( "br" );
+                        docs.ac( div, br );
                     }
                 } ); 
             }
         };
 
-        load.call( this, params );
+        data.load.call( this, params );
     };
 
     this.Datalist = function( params )
     {
-        var el = block( params );
-            el.label.innerText = "\n";
+        var { label, div, wrapper } = block( params );
+            label.innerText = "\n";
 
-        var input = doc.ce( "input" );      
+        var input = docs.ce( "input" );      
             input.value = params.value || "";
             input.setAttribute( "required", "" );
         if ( params.Form )
             input.setAttribute( "Form", params.Form );
+        if ( params.placeholder )
+            input.setAttribute( "placeholder", params.placeholder );
         
-        doc.ac( el.div, input );
+        docs.ac( div, input );
 
         this.populate = function()
         {   
             if ( this.data )
             {
-                el.label.innerText = this.data.name   
+                label.innerText = this.data.name   
                 
                 input.setAttribute( "list", this.data.name );
                 input.name = this.data.name;
                 listeners( input, params, this.data );
 
-                var datalist = doc.ce( "datalist" );
+                var datalist = docs.ce( "datalist" );
                     datalist.id = this.data.name;
-                doc.ac( el.div, datalist );
+                docs.ac( div, datalist );
                 
                 this.data.values.forEach( ( value, i ) =>
                 {
-                    let option = doc.ce( "option" );
-                        option.value = value[ params.field ];
-                    doc.ac( datalist, option );
+                    var text = "";
+
+                    if ( Array.isArray( params.field ) )
+                    {
+                        let array = [];
+
+                        params.field.forEach( ( field, index ) =>
+                        {
+                            if ( index > 0 )
+                            {
+                                if ( value[ field ] )
+                                    array.push( `( ${ value[ field ] } )` );
+                            }
+                            else
+                                array.push( value[ field ] );
+                        } );
+
+                        text = array.join( " " );
+                    }
+                    else
+                    {
+                        text = value[ params.field ];
+                    }
+                    
+                    let option = docs.ce( "option" );
+                        option.value = text;
+                        option.innerText = text;
+                    docs.ac( datalist, option );
                 } ); 
             }
         };
 
-        load.call( this, params );
+        data.load.call( this, params );
     };
 
     this.Input = function( params )
     {
-        var el = block( params );
-            el.label.innerText = params.name || "\n";
+        var { label, div, wrapper } = block( params );
+            label.innerText = params.name || "\n";
 
-        var input = doc.ce( "input" );
+        var input = docs.ce( "input" );
+        listeners( input, params );
 
         for ( let att in params )
-            if ( att !== "element" )
+            if ( ![ "element", "headless", "listeners" ].some( hidden => hidden == att ) )
                 input.setAttribute( att, params[ att ] );
 
-        doc.ac( el.div, input );
+        docs.ac( div, input );
 
         return input;
     };
     
     this.Radio = function( params )
     {
-        var el = block( params );
+        var { label, div, wrapper } = block( params );
 
         this.populate = function()
         {
             if ( this.data )
             {
-                el.label.innerText = this.data.name
+                label.innerText = this.data.name
                 
                 this.data.values.forEach( ( value, i ) =>
                 {
-                    let input = doc.ce( "input" );
+                    let input = docs.ce( "input" );
                         input.type = "radio";
                         input.name = this.data.name;
                         input.id = `${ this.data.name }${ i }`;
                         input.value = value;
+                    if ( params.Form )
+                        input.setAttribute( "Form", params.Form );
                     if ( params.value && params.value == value )
                         input.setAttribute( "checked", "" );
                     if ( params.required )
                         input.setAttribute( "required", "" );
-                    doc.ac( el.div, input );
+                    docs.ac( div, input );
 
-                    let label = doc.ce( "label" );
+                    let label = docs.ce( "label" );
                         label.setAttribute( "for", input.id );
                         label.innerText = value + " ";
-                    doc.ac( el.div, label );
+                    docs.ac( div, label );
                     
                     if ( !params.nobreak )
                     {
-                        let br = doc.ce( "br" );
-                        doc.ac( el.div, br );
+                        let br = docs.ce( "br" );
+                        docs.ac( div, br );
                     }
                 } ); 
             }
         };
 
-        load.call( this, params );
+        data.load.call( this, params );
     };
     
     this.Select = function( params )
     {
-        var el = block( params );
+        var { label, div, wrapper } = block( params );
 
         this.populate = function()
-        {
+        {   
             if ( this.data )
             {
-                el.label.innerText = this.data.name
+                label.innerText = this.data.name
 
-                let input = doc.ce( "select" );
+                let input = docs.ce( "select" );
                     input.name = this.data.name;
                     input.id = this.data.name;
+                    input.value = params.value;
+                    //input.addEventListener( "change", ( e ) => { e.target.value = e.target.options[ e.target.options.selectedIndex ], console.log( e.target, e.target.options, e.target.options.selectedIndex, params.value ) }, false );
+                if ( params.Form )
+                    input.setAttribute( "Form", params.Form );
                 if ( params.required )
                     input.setAttribute( "required", params.required );
-                doc.ac( el.div, input );
+                docs.ac( div, input );
 
-                this.data.values.forEach( ( value ) =>
+                this.data.values[ 0 ].forEach( ( value ) =>
                 {
-                    let option = doc.ce( "option" );
+                    let option = docs.ce( "option" );
                         option.text = value;
                         option.value = value;
                     if ( params.value && params.value == option.value )
+                    { 
                         option.setAttribute( "selected", "");
-                    doc.ac( input, option );
+                    }
+                    docs.ac( input, option );
                 } ); 
             }
         };
 
-        load.call( this, params );
+        data.load.call( this, params );
     };
 
     this.Tabs = function( params )
     {   
         var tabs = [];
-        var data = [ ...params.data ];
+        var data = [ ...params.values ];
             data.forEach( row => 
             {
                 Object.values( row ).forEach( data => 
                 {              
-                    if ( !tabs.find( field => field == data[ params.tab ] ) )
-                        if ( data[ params.tab ] )
-                            tabs.push( data[ params.tab ] );
+                    if ( !tabs.find( field => field == data[ params.field ] ) )
+                        if ( data[ params.field ] )
+                            tabs.push( data[ params.field ] );
                 } );
             } );
 
         if ( tabs.length )
         {
-            let div = doc.ce( "div" );
+            let div = docs.ce( "div" );
                 div.classList.add( "flex" );
-            doc.ac( params.element, div );
+            docs.ac( params.parent, div );
 
-            let label = doc.ce( "div" );
-                label.innerText = params.tab;
+            let label = docs.ce( "div" );
+                label.innerText = params.field;
                 label.classList.add( "tabs" );
-            doc.ac( div, label );
+            docs.ac( div, label );
 
             tabs.forEach( text =>
             {
-                var tab = doc.ce( "div" );
+                var tab = docs.ce( "div" );
                     tab.innerText = text;
                     tab.classList.add( "tab" );
                 listeners( tab, params, text );
-                doc.ac( div, tab );
+                docs.ac( div, tab );
             } );
 
-            let underline = doc.ce( "div" );
+            let underline = docs.ce( "div" );
                 underline.classList.add( "underline" );
-            doc.ac( div, underline );
+            docs.ac( div, underline );
         }
     };
 };

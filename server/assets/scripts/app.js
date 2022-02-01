@@ -1,3 +1,3 @@
-import Data from "./data.js";
+import Templates from "./templates.js";
 
-window.app = { Data: Data };
+window.app = { Templates: Templates };

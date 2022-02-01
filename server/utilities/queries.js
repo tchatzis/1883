@@ -72,10 +72,10 @@ const SQLParse = function( string )
         select: function()
         {           
             // columns
-            let ids = between( string, "select", "from" ).replace( /\s/g, "" ).split( "," );
+            let fields = between( string, "select", "from" ).replace( /\s/g, "" ).split( "," );
 
-            if ( ids != "*" )
-                object.ids = ids;
+            if ( fields != "*" )
+                object.fields = fields;
 
             object.from = `/${ split[ split.indexOf( "from" ) + 1 ] }`;
             object.type = type( object );
@@ -179,20 +179,25 @@ const action =
             var id = query.where[ 0 ][ 2 ];
             var doc = db.collection( query.from ).doc( id );
                 doc.delete();
+            var data = new Data( { [ id ]: {} } );
+                data.collection = query.from;
 
-            return new Data( { [ id ]: {} } );
+            return data;
         },
         insert: async function( query, data )
         {   
             var ref = await db.collection( query.from ).add( data );
+            var data = new Data( { [ ref.id ]: data } );
+                data.collection = query.from;
 
-            return new Data( { [ ref.id ]: data } );
+            return data;
         },
         select: async function( query )
         {
             var ref = db.collection( query.from );
             var result = ref;
             var data = new Data();
+                data.collection = query.from;
 
             if ( query.where && query.where.length )
                 query.where.forEach( where => { result = result.where( ...where ) } );
@@ -201,7 +206,7 @@ const action =
                 result = result.orderBy( ...query.orderby );
 
             if ( query.limit )
-                result = result.limit( query.limit );  
+                result = result.limit( query.limit ); 
             
             let snapshot = await result.get();
 
@@ -209,15 +214,20 @@ const action =
             {
                 snapshot.docs.forEach( doc =>
                 {
-                    var obj = { [ doc.id ]: doc.data() };
-                    
-                    if ( query.ids )
+                    var d = doc.data();
+
+                    if ( query.fields )
                     {
-                        if ( query.ids.some( id => id == doc.id ) ) 
-                            data.append( obj );
+                        let obj = {};
+                        query.fields.forEach( field => obj[ field ] = d[ field ] )   
+
+                        data.append( obj );
                     }
                     else
+                    {
+                        let obj = { [ doc.id ]: d };
                         data.append( obj );
+                    }
                 } );
             }
 
@@ -228,24 +238,27 @@ const action =
             var id = query.where[ 0 ][ 2 ];
             var doc = db.collection( query.from ).doc( id );
                 doc.update( data );
+            var data = new Data( { [ id ]: data } );
+                data.collection = query.from;
 
-            return new Data( { [ id ]: data } );
+            return data;
         }
     },
-    doc:
+    /*doc:
     {
         select: async function( params )
         {
-            var data = new Data();
             var ref = db[ params.type ]( params.path );
             var doc = await ref.get();
+            var data =  new Data( { [ params.field ]: doc.get( params.field ) } );
+                data.collection = null;
 
-            return new Data( { [ params.field ]: doc.get( params.field ) } );
+            return data;
         }
-    }
+    }*/
 };
 
-module.exports.Path = function( params )
+/*module.exports.Path = function( params )
 {
     var scope = this;
     var path = params.path.split( "/" );
@@ -258,7 +271,7 @@ module.exports.Path = function( params )
     {
         scope.data = await action[ params.type ][ params.action ]( params, data );
     };
-};
+};*/
 
 module.exports.Query = function( params )
 {   

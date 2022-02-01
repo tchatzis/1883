@@ -104,12 +104,12 @@
 
     a:link, a:visited
     {
-        color: blue;
+        color: darkorchid;
     }
 
     a:hover
     {
-        color: green;
+        color: orange;
     }
 
     .active
@@ -126,7 +126,9 @@
 
     body
     {
+        background-color: #222;
         border: none;
+        color: #CCC;
         font-family: var( --font );
         height: 100vh;
         margin: 0;

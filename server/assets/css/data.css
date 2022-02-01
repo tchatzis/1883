@@ -1,13 +1,14 @@
 .active
 {
-    background-color: orange;
-    color: black;
+    background-color: transparent !important;
+    border-bottom: 1px solid transparent !important;
+    color: white !important;
 }
 
 .cell
 {
-    border: 1px solid silver;
-    color: #333;
+    border: 1px solid #333;
+    color: #CCCC99;
     font-family: courier;
     font-size: 0.7em;
     
@@ -15,7 +16,7 @@
 
 .column
 {
-    color: black;
+    color: white;
     clear: both;
     font-size: 0.8em;
     font-weight: bold;
@@ -28,12 +29,19 @@
     transition: background-color 3000ms linear;
 }
 
-input
+input, select
 {
-    border: 1px solid #666;
+    background-color: #111;
+    border: 1px solid transparent;
     border-radius: 4px;
+    color: orange;
     margin: 1px;
     outline: none;
+}
+
+input[ type = checkbox ]
+{
+    background-color: black;
 }
 
 input[ type = number ]
@@ -47,9 +55,21 @@ input[ type = number ]
     transition: background-color 3000ms linear;
 }
 
+label
+{
+    color: orange;
+    cursor: pointer;
+    padding-left: 2em;
+}
+
 .right
 {
     float: right;
+}
+
+.select
+{
+    background-color: black !important;
 }
 
 .tab
@@ -78,7 +98,7 @@ input[ type = number ]
     background-color: orange;
     color: black;
     cursor: pointer;
-    border: 1px solid black;
+    border: 1px solid white;
 }
 
 .underline
@@ -102,6 +122,11 @@ tr.row:hover
 {
     background-color: lightblue;
     cursor: pointer;
+}
+
+tr.row:hover td
+{
+    color: black;
 }
 
 td
