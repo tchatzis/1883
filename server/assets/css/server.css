@@ -178,6 +178,20 @@
         font-size: 0.8em;
     }
 
+    #loader
+    {
+        align-items: center;
+        background-color: rgba( 0, 0, 0, 0.9 );
+        display: none;/*flex;*/
+        height: 100vh;
+        justify-content: center;
+        left: 0;
+        pointer-events: none;
+        position: absolute;  
+        top: 0;    
+        width: 100vw;   
+    }
+
     .link
     {
         color: #666;

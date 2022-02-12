@@ -221,19 +221,21 @@ var Widgets = function( data )
         {   
             if ( this.data )
             {
-                label.innerText = this.data.name   
+                label.innerText = this.data.name;
+                let id = params.Form ? `${ params.Form }_${ this.data.name }` : this.data.name;  
                 
-                input.setAttribute( "list", this.data.name );
+                input.setAttribute( "list", id );
                 input.name = this.data.name;
                 listeners( input, params, this.data );
 
                 var datalist = docs.ce( "datalist" );
-                    datalist.id = this.data.name;
+                    datalist.id = id;
                 docs.ac( div, datalist );
                 
                 this.data.values.forEach( ( value, i ) =>
                 {
                     var text = "";
+                    var option = docs.ce( "option" )
 
                     if ( Array.isArray( params.field ) )
                     {
@@ -244,10 +246,16 @@ var Widgets = function( data )
                             if ( index > 0 )
                             {
                                 if ( value[ field ] )
+                                {
                                     array.push( `( ${ value[ field ] } )` );
+                                    option.setAttribute( `data-${ field }`, value[ field ] );
+                                }
                             }
                             else
+                            {
                                 array.push( value[ field ] );
+                                option.setAttribute( `data-${ field }`, value[ field ] );
+                            }
                         } );
 
                         text = array.join( " " );
@@ -255,11 +263,11 @@ var Widgets = function( data )
                     else
                     {
                         text = value[ params.field ];
+                        option.setAttribute( `data-${ params.field }`, value[ params.field ] );
                     }
-                    
-                    let option = docs.ce( "option" );
-                        option.value = text;
-                        option.innerText = text;
+
+                    option.value = text;
+                    option.innerText = text;
                     docs.ac( datalist, option );
                 } ); 
             }
@@ -341,7 +349,6 @@ var Widgets = function( data )
                     input.name = this.data.name;
                     input.id = this.data.name;
                     input.value = params.value;
-                    //input.addEventListener( "change", ( e ) => { e.target.value = e.target.options[ e.target.options.selectedIndex ], console.log( e.target, e.target.options, e.target.options.selectedIndex, params.value ) }, false );
                 if ( params.Form )
                     input.setAttribute( "Form", params.Form );
                 if ( params.required )
@@ -368,14 +375,14 @@ var Widgets = function( data )
     this.Tabs = function( params )
     {   
         var tabs = [];
-        var data = [ ...params.values ];
-            data.forEach( row => 
+        var values = [ ...params.values ];
+            values.forEach( docs => 
             {
-                Object.values( row ).forEach( data => 
+                Object.values( docs ).forEach( doc => 
                 {              
-                    if ( !tabs.find( field => field == data[ params.field ] ) )
-                        if ( data[ params.field ] )
-                            tabs.push( data[ params.field ] );
+                    if ( !tabs.find( field => field == doc[ params.field ] ) )
+                        if ( doc[ params.field ] )
+                            tabs.push( doc[ params.field ] );
                 } );
             } );
 

@@ -1,8 +1,10 @@
 {
   "dependencies": {
+    "cookie-parser": "^1.4.6",
     "express": "^4.17.2",
     "firebase": "^9.6.3",
     "firebase-admin": "^10.0.1",
+    "firebaseui": "^6.0.0",
     "pug": "^3.0.2"
   }
 }

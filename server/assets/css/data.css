@@ -137,6 +137,11 @@ td
 
 .update
 {
-    background-color: violet !important;
+    background-color: violet !important; 
     transition: background-color 1000ms linear;
+}
+
+.insert td, .update td
+{
+    color: black !important;
 }

@@ -1,3 +1,6 @@
 import Templates from "./templates.js";
 
-window.app = { Templates: Templates };
+window.app = 
+{ 
+    Templates: Templates 
+};

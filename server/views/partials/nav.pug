@@ -1,5 +1,6 @@
 nav.noprint
-    each link in nav.main
-        if link.label
-            a( href= link.url )= link.label
-            br
+    if ( nav )
+        each link in nav.main
+            if link.label
+                a( href= link.url )= link.label
+                br

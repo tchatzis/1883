@@ -59,16 +59,19 @@ const Data = function()
 
         scope.id = result.docs[ 0 ];
         scope.append( result );
-        scope.store[ scope.collection ] = sort( scope.store[ scope.collection ], scope.sort[ scope.collection ] );
+        scope.store[ scope.collection ] = sort( scope.store[ scope.collection ], scope.schema[ scope.collection ].sort );
     };
 
     this.filter = function( data, params )
-    {
-        var result = [];
+    {   
+        if( !params )
+            return data;
         
-        [ ...data ].map( row => Object.values( row ).find( data => 
+        let result = [];
+
+        [ ...data ].map( row => Object.values( row ).find( doc => 
         {
-            if ( data[ params.field ] == params.value )
+            if ( doc[ params.name ] == params.value )
                 result.push( row );        
         } ) );
 
@@ -77,7 +80,7 @@ const Data = function()
 
     this.grow = async function( params )
     {   
-        var response = await fetch( params.url, { method: "post", body: JSON.stringify( params.body ), headers: { "Accept": "application/json", "Content-Type": "application/json" } } );
+        var response = await fetch( params.url, { method: "post", body: JSON.stringify( params.doc ), headers: { "Accept": "application/json", "Content-Type": "application/json" } } );
         var result = await response.json();
     };
 
@@ -126,10 +129,10 @@ const Data = function()
 
     this.modify = function( result )
     {   
-        scope.store[ scope.collection ].forEach( row => 
+        scope.store[ scope.collection ].forEach( docs => 
         { 
-            if ( Object.keys( row ).every( doc => doc == result.docs ) )
-                row = result.data[ 0 ];
+            if ( Object.keys( docs ).every( id => id == result.docs ) )
+                docs = result.data[ 0 ];
         } );
     };
 
@@ -153,13 +156,12 @@ const Data = function()
     };
 
     this.query = async function( params )
-    {
+    {   
         var response = await fetch( params.url, { method: "post", body: JSON.stringify( params ), headers: { "Accept": "application/json", "Content-Type": "application/json" } } );
         var result = await response.json();
         var collection = result.collection.substring( 1 );
 
         scope.fields[ collection ] = result.fields;
-        scope.sort[ collection ] = params.sort;
         scope.store[ collection ] = result.data;
     };
 
@@ -169,22 +171,23 @@ const Data = function()
         var result = await response.json();
 
         scope.collection = params.url.split( "/" )[ 2 ];
-        scope.fields[ scope.collection ] = result.fields;
-        scope.sort[ scope.collection ] = params.sort;   
-        scope.store[ scope.collection ] = sort( result.data, scope.sort[ scope.collection ] );
+        scope.fields[ scope.collection ] = result.fields; 
+        scope.store[ scope.collection ] = sort( result.data, scope.schema[ scope.collection ].sort );
     };
 
     this.fields = {};
-    this.sort = {};
+    this.schema = {};
     this.store = {};
 
     this.update = async function( params )
-    { 
+    {         
         var response = await fetch( params.url, { method: "post", body: JSON.stringify( params.doc ), headers: { "Accept": "application/json", "Content-Type": "application/json" } } );
         var result = await response.json();
 
         scope.modify( result );
-        scope.store[ scope.collection ] = sort( scope.store[ scope.collection ], scope.sort[ scope.collection ] );
+
+        scope.collection = params.url.split( "/" )[ 2 ];
+        scope.store[ scope.collection ] = sort( scope.store[ scope.collection ], scope.schema[ scope.collection ].sort );
     };
 };
 

@@ -1,0 +1,14 @@
+extends partials/layout
+
+block content
+    h1 Log In 
+
+    div#content
+
+block script 
+    script.
+        window.addEventListener( "load", () =>
+        {
+            var template = new window.app.Templates();
+                template.init( { content: "login", path: "/db/users" } );
+        } );

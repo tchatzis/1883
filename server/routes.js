@@ -1,3 +1,4 @@
+//const { getAuth, signInWithEmailAndPassword } = require( "firebase-admin/auth" );
 const queries = require( "./utilities/queries" );
 const checklists = require( "./data/checklists" );
 const utils = require( "./utilities/functions" );
@@ -31,69 +32,79 @@ const Menu = function( name )
 
 const main = new Menu( "main" );
 
-const Route = {};
-
-Route.DB = function( label, endpoint, template, variables )
-{     
-    this.label = label;
-    this.template = template;
-    this.endpoint = endpoint;
-    this.function = "db";
-    this.variables = main.append( label, endpoint, Object.assign( variables, { title: label } ) );
-};
-
-Route.Directory = function( label, endpoint, template, variables )
+const Route =
 {
-    this.label = label;
-    this.template = template || "directory";
-    this.endpoint = endpoint;
-    this.function = "directory";
-    this.variables = main.append( label, endpoint, Object.assign( variables, { title: label } ) );  
-};
+    DB: function( label, endpoint, template, variables )
+    {     
+        this.label = label;
+        this.template = template;
+        this.endpoint = endpoint;
+        this.function = "db";
+        this.variables = main.append( label, endpoint, Object.assign( variables, { title: label } ) );
+    },
 
-Route.Download = function( label, endpoint, template, variables )
-{
-    this.label = label;
-    this.template = template || "downloads";
-    this.endpoint = endpoint;
-    this.function = "download";
-    this.variables = main.append( label, endpoint, Object.assign( variables, { title: label } ) );  
-};
+    Directory: function( label, endpoint, template, variables )
+    {
+        this.label = label;
+        this.template = template || "directory";
+        this.endpoint = endpoint;
+        this.function = "directory";
+        this.variables = main.append( label, endpoint, Object.assign( variables, { title: label } ) );  
+    },
 
-Route.File = function( label, endpoint, template, variables )
-{   
-    this.label = label;
-    this.endpoint = endpoint;
-    this.template = null;
-    this.function = "file";
-    this.variables = main.append( label, endpoint, Object.assign( variables, { title: label, path: endpoint } ) );  
-};
+    Download: function( label, endpoint, template, variables )
+    {
+        this.label = label;
+        this.template = template || "downloads";
+        this.endpoint = endpoint;
+        this.function = "download";
+        this.variables = main.append( label, endpoint, Object.assign( variables, { title: label } ) );  
+    },
 
-Route.ID = function( label, endpoint, template, variables )
-{
-    this.label = null;
-    this.template = template;
-    this.endpoint = endpoint;
-    this.function = "id";
-    this.variables = main.append( label, endpoint, variables );  
-};
+    File: function( label, endpoint, template, variables )
+    {   
+        this.label = label;
+        this.endpoint = endpoint;
+        this.template = null;
+        this.function = "file";
+        this.variables = main.append( label, endpoint, Object.assign( variables, { title: label, path: endpoint } ) );  
+    },
 
-Route.Submenu = function( label, endpoint, template, variables )
-{   
-    this.label = label;
-    this.endpoint = endpoint;
-    this.template = template || "submenu";
-    this.function = "static";
-    this.variables = main.append( label, endpoint, Object.assign( variables, { title: label, path: endpoint } ) );  
-};
+    Logout: function( label, endpoint, template, variables )
+    {
+        this.label = label;
+        this.template = template;
+        this.endpoint = endpoint;
+        this.function = "logout";
+        this.variables = main.append( label, endpoint, variables );  
+    },
 
-Route.Static = function( label, endpoint, template, variables )
-{
-    this.label = label;
-    this.endpoint = endpoint;
-    this.template = template;
-    this.function = "static";
-    this.variables = main.append( label, endpoint, variables );
+    ID: function( label, endpoint, template, variables )
+    {
+        this.label = null;
+        this.template = template;
+        this.endpoint = endpoint;
+        this.function = "id";
+        this.variables = main.append( label, endpoint, variables );  
+    },
+
+    Submenu: function( label, endpoint, template, variables )
+    {   
+        this.label = label;
+        this.endpoint = endpoint;
+        this.template = template || "submenu";
+        this.function = "static";
+        this.variables = main.append( label, endpoint, Object.assign( variables, { title: label, path: endpoint } ) );  
+    },
+
+    Static: function( label, endpoint, template, variables )
+    {
+        this.label = label;
+        this.endpoint = endpoint;
+        this.template = template;
+        this.function = "static";
+        this.variables = main.append( label, endpoint, variables );
+    }
 };
 
 // routing
@@ -119,9 +130,8 @@ var routes =
     new Route.Directory( "Documents", "/documents", null, { directory: "assets/documents" } ),
     new Route.Download( "", "/downloads/:id", null, { directory: "assets/documents" } ),
     new Route.Directory( "Downloads", "/downloads", "downloads", { directory: "assets/documents" } ),
+    new Route.Logout( "Log Out", "/logout" ),
 ];
-
-module.exports.nav = nav;
 
 module.exports.define = function( server )
 {
@@ -136,17 +146,17 @@ module.exports.define = function( server )
                 res.render( `db/${ params.template }`, params.variables );
             } );
             
-            server.post( `/path`, async function( req, res )
+            /*server.post( `/path`, async function( req, res )
             {                    
                 var path = new queries.Path( req.body );
 
                 await path.exec( req.body );
 
                 res.json( path.data );
-            } );
+            } );*/
 
             server.post( `/query`, async function( req, res )
-            {                   
+            {                                   
                 var query = new queries.Query( { query: req.body.query } );
 
                 await query.exec();
@@ -236,6 +246,16 @@ module.exports.define = function( server )
                 } ); 
             } );
         };
+
+        functions[ "logout" ] = function( params )
+        {
+            server.get( params.endpoint, ( req, res ) => 
+            { 
+                res.clearCookie( "auth" );
+                
+                res.redirect( "/" );
+            } );
+        };
         
         functions[ "id" ] = function( params )
         {
@@ -257,6 +277,8 @@ module.exports.define = function( server )
 
     routes.forEach( params => functions[ params.function ].call( null, params ) );
 };
+
+module.exports.nav = nav;
 
 /*function extract( body )
 {
