@@ -1,6 +1,5 @@
-//const { getAuth, signInWithEmailAndPassword } = require( "firebase-admin/auth" );
+const fs = require( "fs" );
 const queries = require( "./utilities/queries" );
-const checklists = require( "./data/checklists" );
 const utils = require( "./utilities/functions" );
 const nav = {};
 
@@ -34,102 +33,114 @@ const main = new Menu( "main" );
 
 const Route =
 {
-    DB: function( label, endpoint, template, variables )
+    Data: function()
+    {
+        this.label = null;
+        this.template = null;
+        this.endpoint = null;
+        this.function = "data";
+        this.variables = null;
+    },
+    
+    DB: function( label, endpoint, variables )
     {     
         this.label = label;
-        this.template = template;
+        this.template = "template";
         this.endpoint = endpoint;
         this.function = "db";
         this.variables = main.append( label, endpoint, Object.assign( variables, { title: label } ) );
     },
 
-    Directory: function( label, endpoint, template, variables )
+    Directory: function( label, endpoint, variables )
     {
         this.label = label;
-        this.template = template || "directory";
+        this.template = "directory";
         this.endpoint = endpoint;
         this.function = "directory";
-        this.variables = main.append( label, endpoint, Object.assign( variables, { title: label } ) );  
-    },
-
-    Download: function( label, endpoint, template, variables )
-    {
-        this.label = label;
-        this.template = template || "downloads";
-        this.endpoint = endpoint;
-        this.function = "download";
-        this.variables = main.append( label, endpoint, Object.assign( variables, { title: label } ) );  
-    },
-
-    File: function( label, endpoint, template, variables )
-    {   
-        this.label = label;
-        this.endpoint = endpoint;
-        this.template = null;
-        this.function = "file";
         this.variables = main.append( label, endpoint, Object.assign( variables, { title: label, path: endpoint } ) );  
     },
 
-    Logout: function( label, endpoint, template, variables )
+    Download: function( label, endpoint, variables )
     {
         this.label = label;
-        this.template = template;
+        this.template = "downloads";
         this.endpoint = endpoint;
-        this.function = "logout";
-        this.variables = main.append( label, endpoint, variables );  
+        this.function = "download";
+        this.variables = main.append( label, endpoint, Object.assign( variables, { title: label, path: endpoint } ) );  
     },
 
-    ID: function( label, endpoint, template, variables )
+    File: function( label, endpoint, variables )
+    {   
+        this.label = label;
+        this.template = "directory";
+        this.endpoint = endpoint;
+        this.function = "file";
+        this.variables = main.append( label, endpoint, Object.assign( variables, { title: label } ) );  
+    },
+
+    Logout: function( label, endpoint )
+    {
+        this.label = label;
+        this.template = null;
+        this.endpoint = endpoint;
+        this.function = "logout";
+        this.variables = main.append( label, endpoint, {} );  
+    },
+
+    ID: function( label, endpoint, variables )
     {
         this.label = null;
-        this.template = template;
+        this.template = null;
         this.endpoint = endpoint;
         this.function = "id";
         this.variables = main.append( label, endpoint, variables );  
     },
 
-    Submenu: function( label, endpoint, template, variables )
+    Submenu: function( label, endpoint, variables )
     {   
         this.label = label;
         this.endpoint = endpoint;
-        this.template = template || "submenu";
+        this.template = "submenu";
         this.function = "static";
         this.variables = main.append( label, endpoint, Object.assign( variables, { title: label, path: endpoint } ) );  
     },
 
-    Static: function( label, endpoint, template, variables )
+    Static: function( label, endpoint, variables )
     {
         this.label = label;
         this.endpoint = endpoint;
-        this.template = template;
+        this.template = "static";
         this.function = "static";
         this.variables = main.append( label, endpoint, variables );
     }
 };
 
 // routing
-// "label", "endpoint", "template", { variables }
+// "label", "/endpoint/", { variables }
 var routes =
 [
-    new Route.Static( "Home", "/", "nosubmenu" ),
-    new Route.DB( "Stock", "/db/stock", "table", { sub: null, tab: "storage", sort: "label" } ),
-    new Route.DB( "Items", "/db/item", "table", { sub: null, tab: "group", sort: "label" } ),
-    new Route.DB( "Allergen", "/db/allergen", "table", { sub: "sequence", sort: "sequence" } ),
-    new Route.DB( "Group", "/db/group", "table", { sub: "sequence", sort: "sequence" } ),
-    new Route.DB( "Kitchen", "/db/kitchen", "table", { sub: "sequence", sort: "sequence" } ),
-    new Route.DB( "Plating", "/db/plating", "table", { sub: "sequence", sort: "sequence" } ),
-    new Route.DB( "Process", "/db/process", "table", { sub: "sequence", sort: "sequence" } ),
-    new Route.DB( "Status", "/db/status", "table", { sub: "sequence", sort: "sequence" } ),
-    new Route.DB( "Temp", "/db/temp", "table", { sub: "sequence", sort: "sequence" } ),
+    new Route.Static( "Home", "/", {} ),
     
-    //new Route.Static( "Events", "/events", "submenu" ),
-    //new Route.Static( "Menus", "/menus", "submenu" ),
-    new Route.ID( "", "/checklists/:id", "partials/checklist", checklists ),
-    new Route.Submenu( "Checklists", "/checklists", null, checklists ),
-    new Route.File( "", "/documents/:id", null, { directory: "assets/documents" } ),
-    new Route.Directory( "Documents", "/documents", null, { directory: "assets/documents" } ),
-    new Route.Download( "", "/downloads/:id", null, { directory: "assets/documents" } ),
-    new Route.Directory( "Downloads", "/downloads", "downloads", { directory: "assets/documents" } ),
+    new Route.Data(),
+    new Route.DB( "Tests", "/db/test", { content: "table", sub: null, sort: "name" } ),
+    new Route.DB( "Venues", "/db/venue", { content: "table", sub: null, sort: "name" } ),
+    new Route.DB( "Stock", "/db/stock", { content: "table", sub: null, tab: "storage", sort: "label" } ),
+    new Route.DB( "Items", "/db/item", { content: "table", sub: null, tab: "group", sort: "label" } ),
+    new Route.DB( "Events", "/db/event", { content: "calendar", sub: null, tab: "date", sort: "date" } ),
+
+    /*new Route.DB( "Brand", "/db/brand", { content: "table", sub: "label", sort: "label" } ),
+    new Route.DB( "Allergen", "/db/allergen", { content: "table", sub: "sequence", sort: "sequence" } ),
+    new Route.DB( "Group", "/db/group", { content: "table", sub: "sequence", sort: "sequence" } ),
+    new Route.DB( "Kitchen", "/db/kitchen", { content: "table", sub: "sequence", sort: "sequence" } ),
+    new Route.DB( "Plating", "/db/plating", { content: "table", sub: "sequence", sort: "sequence" } ),
+    new Route.DB( "Process", "/db/process", { content: "table", sub: "sequence", sort: "sequence" } ),
+    new Route.DB( "Status", "/db/status", { content: "table", sub: "sequence", sort: "sequence" } ),
+    new Route.DB( "Temp", "/db/temp", { content: "table", sub: "sequence", sort: "sequence" } ),*/
+
+    new Route.File( "", "/documents/:id", { directory: "assets/documents" } ),
+    new Route.Directory( "Documents", "/documents", { directory: "assets/documents" } ),
+    new Route.Download( "", "/downloads/:id", { directory: "assets/documents" } ),
+    new Route.Directory( "Downloads", "/downloads", { directory: "assets/documents" } ),
     new Route.Logout( "Log Out", "/logout" ),
 ];
 
@@ -137,23 +148,16 @@ module.exports.define = function( server )
 {
     var functions = {};
 
-        functions[ "db" ] = async function( params )
-        {     
-            server.get( `${ params.endpoint }`, ( req, res ) =>
-            {   
-                res.locals.path = req.path;
-
-                res.render( `db/${ params.template }`, params.variables );
-            } );
-            
-            /*server.post( `/path`, async function( req, res )
+        functions[ "data" ] = async function( params )
+        {
+            server.post( `/path`, async function( req, res )
             {                    
                 var path = new queries.Path( req.body );
 
                 await path.exec( req.body );
 
                 res.json( path.data );
-            } );*/
+            } );
 
             server.post( `/query`, async function( req, res )
             {                                   
@@ -162,6 +166,16 @@ module.exports.define = function( server )
                 await query.exec();
 
                 res.json( query.data );
+            } );
+        };
+    
+        functions[ "db" ] = async function( params )
+        {     
+            server.get( `${ params.endpoint }`, ( req, res ) =>
+            {   
+                res.locals.path = req.path;
+
+                res.render( `db/${ params.template }`, params.variables );
             } );
 
             // CRUD
@@ -236,14 +250,14 @@ module.exports.define = function( server )
         functions[ "file" ] = function( params )
         {   
             server.get( params.endpoint, ( req, res ) => 
-            {
-                var info = utils.fileInfo( params.variables.directory, req.params.filename );
-
+            {   
+                var info = utils.fileInfo( params.variables.directory, req.params.id );
+                
                 fs.readFile( info.file, ( err, data ) =>
                 {
                     res.contentType( info.type );
                     res.send( data );
-                } ); 
+                } );
             } );
         };
 

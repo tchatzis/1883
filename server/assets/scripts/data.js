@@ -2,6 +2,17 @@ const Data = function()
 {
     var scope = this;
 
+    // helpers
+    function flatten( array )
+    {
+        var string = array;
+        
+        while ( Array.isArray( string ) )
+            string = string[ 0 ];
+
+        return string;
+    }
+
     function sort( data, field )
     { 
         var sorted = [];
@@ -16,20 +27,27 @@ const Data = function()
             {   
                 for ( let key in obj )
                 { 
-                    if ( obj.hasOwnProperty( key ) )
+                    if ( obj?.hasOwnProperty( key ) )
                     {                
-                        let value = isNaN( obj[ key ][ field ] ) ? obj[ key ][ field ].toLowerCase() : obj[ key ][ field ];
-                        let index = values.findIndex( val => val >= value );
+                        if ( obj[ key ]?.hasOwnProperty( field ) )
+                        {   
+                            let value = isNaN( obj[ key ][ field ] ) ? obj[ key ][ field ].toLowerCase() : obj[ key ][ field ];
+                            let index = values.findIndex( val => val >= value );
 
-                        if ( index < 0 )
-                        {
-                            values.push( value );
-                            sorted.push( obj );
+                            if ( index < 0 )
+                            {
+                                values.push( value );
+                                sorted.push( obj );
+                            }
+                            else
+                            {
+                                values.splice( index, 0, value );  
+                                sorted.splice( index, 0, obj ); 
+                            }
                         }
                         else
                         {
-                            values.splice( index, 0, value );  
-                            sorted.splice( index, 0, obj ); 
+                            console.info( field, "is not defined in", key, obj, "with value", obj[ key ] );
                         }
                     }
                 }
@@ -39,27 +57,26 @@ const Data = function()
         }
     }
 
-    this.append = function( result )
-    {
-        var doc = result.data[ 0 ][ result.docs ];
+    // defaults
+    this.docs = {};
+    this.fields = {};
+    this.schema = {};
+    this.store = {};
 
-        scope.store[ scope.collection ].push( { [ result.docs ]: doc } );    
+    // methods
+    this.append = function( result )
+    {       
+        var id = flatten( result.ids );
+        var data = flatten( result.data );
+        var doc = data[ id ];
+
+        scope.store[ scope.collection ].push( { [ id ]: doc } );    
     };
 
     this.delete = async function( params )
     {
         var response = await fetch( params.url, { method: "post" } );
         var result = await response.json();
-    };
-
-    this.insert = async function( params )
-    {   
-        var response = await fetch( params.url, { method: "post", body: JSON.stringify( params.doc ), headers: { "Accept": "application/json", "Content-Type": "application/json" } } );
-        var result = await response.json();
-
-        scope.id = result.docs[ 0 ];
-        scope.append( result );
-        scope.store[ scope.collection ] = sort( scope.store[ scope.collection ], scope.schema[ scope.collection ].sort );
     };
 
     this.filter = function( data, params )
@@ -71,7 +88,7 @@ const Data = function()
 
         [ ...data ].map( row => Object.values( row ).find( doc => 
         {
-            if ( doc[ params.name ] == params.value )
+            if ( doc[ params.name ] == params.value || !doc[ params.name ] )
                 result.push( row );        
         } ) );
 
@@ -84,34 +101,19 @@ const Data = function()
         var result = await response.json();
     };
 
+    this.insert = async function( params )
+    {   
+        var response = await fetch( params.url, { method: "post", body: JSON.stringify( params.doc ), headers: { "Accept": "application/json", "Content-Type": "application/json" } } );
+        var result = await response.json();
+
+        scope.append( result );
+        scope.store[ scope.collection ] = sort( scope.store[ scope.collection ], scope.schema[ scope.collection ].sort );
+    };
+
     this.load = async function( params )
     {
-        /*if ( params.path )
+        function values( collection )
         {
-            console.trace();
-            await d.path( params );
-
-            let values = [];
-            let data = {};
-            
-            d.data.forEach( row =>
-            {
-                data.name = Object.keys( row )[ 0 ];
-                data.values = row[ data.name ];
-            } );
-
-            this.data = data;
-        }*/
-
-        if ( params.query )
-        {   
-            var split = params.query.split( " " );
-            var from = split.indexOf( "from" );
-            var collection = split[ from + 1 ];
-            
-            if ( !scope.store[ collection ] )
-                await scope.query( { url: `/query`, sort: params.sort, query: params.query } );
-
             let values = [];
 
             scope.store[ collection ] = sort( scope.store[ collection ], params.sort );
@@ -121,10 +123,44 @@ const Data = function()
                 values.push( row[ Object.keys( row ) ] );
             } );
 
-            this.data = { name: params.name, values: values, collection: collection };
+            return values;
+        }
+        
+        if ( params.path )
+        {
+            let collection = params.collection;
+            
+            if ( !scope.store[ collection ] )
+                await scope.path( params );
+
+            this.data = { name: params.name, values: values( collection ), collection: collection, docs: scope.docs[ collection ] };
+            this.populate( params );
+
+            return this.data;
         }
 
-        this.populate();
+        if ( params.array )
+        {
+            this.data = { name: params.name, values: params.array };
+            this.populate();
+
+            return this.data;
+        }
+
+        if ( params.query )
+        {   
+            var split = params.query.split( " " );
+            var from = split.indexOf( "from" );
+            let collection = split[ from + 1 ];
+            
+            if ( !scope.store[ collection ] )
+                await scope.query( { url: `/query`, sort: params.sort, query: params.query } );
+
+            this.data = { name: params.name, values: values( collection ), collection: collection, docs: scope.docs[ collection ] };
+            this.populate();
+
+            return this.data;
+        } 
     };
 
     this.modify = function( result )
@@ -136,16 +172,16 @@ const Data = function()
         } );
     };
 
-    /*this.path = async function( params )
+    this.path = async function( params )
     {
         var response = await fetch( "/path", { method: "post", body: JSON.stringify( params ), headers: { "Accept": "application/json", "Content-Type": "application/json" } } );
         var result = await response.json();
-        var path = params.path.split( "/" );
+        var collection = result.collection;
 
-        scope.collection = params.path; 
-        scope.fields = path.pop();
-        scope.store[ scope.collection ] = result.data;
-    };*/
+        scope.docs[ collection ] = result.data;
+        scope.fields[ collection ] = result.fields;
+        scope.store[ collection ] = sort( result.data, scope.schema[ scope.collection ].sort ); 
+    };
 
     this.remove = function( doc )
     {
@@ -161,23 +197,22 @@ const Data = function()
         var result = await response.json();
         var collection = result.collection.substring( 1 );
 
+        scope.docs[ collection ] = result.data;
         scope.fields[ collection ] = result.fields;
-        scope.store[ collection ] = result.data;
+        scope.store[ collection ] = sort( result.data, params.sort );
     };
 
     this.select = async function( params )
     {
         var response = await fetch( params.url, { method: "post" } );
         var result = await response.json();
+        var collection = result.collection.substring( 1 );
 
-        scope.collection = params.url.split( "/" )[ 2 ];
+        scope.collection = collection;
+        scope.docs[ scope.collection ] = result.data;
         scope.fields[ scope.collection ] = result.fields; 
         scope.store[ scope.collection ] = sort( result.data, scope.schema[ scope.collection ].sort );
     };
-
-    this.fields = {};
-    this.schema = {};
-    this.store = {};
 
     this.update = async function( params )
     {         
@@ -186,7 +221,7 @@ const Data = function()
 
         scope.modify( result );
 
-        scope.collection = params.url.split( "/" )[ 2 ];
+        //scope.collection = params.url.split( "/" )[ 2 ];
         scope.store[ scope.collection ] = sort( scope.store[ scope.collection ], scope.schema[ scope.collection ].sort );
     };
 };

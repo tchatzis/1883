@@ -18,10 +18,11 @@ function parse( e )
     {
         if ( temp.hasOwnProperty( prop ) )
         {
-            if ( temp[ prop ].length == 1 )
-                body[ prop ] = temp[ prop ][ 0 ];
-            else
-                body[ prop ] = temp[ prop ]          
+            let value = ( temp[ prop ].length == 1 ) ? temp[ prop ][ 0 ] : temp[ prop ];
+                value = value.trim();
+                value = Date.parse( value ) ? value.replace( /-/g, "/" ) : value;
+            
+            body[ prop ] = +value || value;       
         }
     }
 

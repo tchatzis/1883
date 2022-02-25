@@ -5,7 +5,7 @@
 
     --padding: 10px;
 
-    --underline: 1px dotted silver;
+    --underline: 1px dotted #666;
 }
 
 @media print
@@ -27,7 +27,7 @@
         border: none;
         font-family: var( --font );
         margin: 0;
-        padding: var( --padding );
+        padding: 0;
     }
 
     div.content
@@ -133,14 +133,14 @@
         height: 100vh;
         margin: 0;
         overflow: hidden;
-        padding: var( --padding );
+        padding: 0;
         user-select: none;
         width: 100vw;
     }
 
     div.content
     {
-        flex: 0 1 70%;
+        flex: 0 1 60%;
         background-color: transparent;
         border-radius: 10px;
         border: 1px solid silver;
@@ -155,11 +155,19 @@
         display: flex;
     }
 
+    footer
+    {
+        bottom: 0;
+        position: absolute;
+        width: 100vw;
+    }
+
     h1
     {
         color: #666;
         font-size: 1.5em;
         font-weight: bold;
+        white-space: nowrap;
     }
 
     h1, p
@@ -217,6 +225,29 @@
         background-color: lightgreen;
     }
 
+    #message
+    {
+        align-items: center;
+        background-color: black !important;
+        bottom: 0;
+        color: yellow;
+        display: flex;
+        height: 10vh;
+        justify-content: center;
+        left: 0;
+        opacity: 0;
+        pointer-events: none;
+        position: absolute;    
+        transition: opacity 1000ms linear;       
+        width: 100vw;   
+    }
+
+    #message.visible
+    {
+        opacity: 1;
+        transition: opacity 1000ms linear;
+    }
+
     nav
     {
         flex: 0;
@@ -243,10 +274,16 @@
     section
     {
         border-bottom: var( --underline );
+        border-top: var( --underline );
         color: black;
         font-weight: bold;
         text-transform: capitalize;
         width: 100%;
+    }
+
+    #sub
+    {
+        flex: 0 1 30%;
     }
 
     ul

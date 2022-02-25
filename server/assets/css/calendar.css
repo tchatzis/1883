@@ -1,0 +1,64 @@
+.event
+{
+    border-radius: 4px;
+    color: silver;
+    font-size: 8pt;
+    padding: 2px;
+    width: 100%;
+}
+
+.event:hover
+{
+    background-color: black;
+}
+
+table.calendar
+{
+    border-collapse: separate;
+    width: 100%;
+}
+
+td.before
+{
+    pointer-events: none;
+}
+
+td.current
+{
+    border-color: white !important;
+    font-size: 1em !important;
+    color: orange !important;
+}
+
+td.day
+{
+    border: 1px solid #333;
+    font-family: courier;
+    font-size: 0.7em;
+    height: 10vh;
+    vertical-align: top;
+    width: 14%;
+}
+
+td.inside
+{
+    border-color: #666;
+    color: silver;
+}
+
+td.inside:hover
+{
+    background-color: #333;
+    cursor: pointer;
+}
+
+td.today
+{
+    font-size: 1em !important;
+    color: cyan !important;
+}
+
+td.outside
+{    
+    color: #444;
+}

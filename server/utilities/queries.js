@@ -5,14 +5,14 @@ const Data = function( data )
     var scope = this;
         scope.data = [];
     var fields = [];
-    var docs = [];
+    var ids = [];
 
     this.append = function( data )
     {
         if ( data )
         {
             scope.data.push( data );
-            docs = docs.concat( Object.keys( data ) );
+            ids = ids.concat( Object.keys( data ) );
         }
 
         scope.records = scope.data.length;
@@ -23,18 +23,21 @@ const Data = function( data )
     function columns()
     {
         scope.data.forEach( obj =>
-        {
+        {           
             Object.keys( obj ).forEach( id =>
             {
-                Object.keys( obj[ id ] ).forEach( field =>
-                {
-                    fields.indexOf( field ) < 0 ? fields.push( field ) : null;
-                } );
+                if( Object.keys( obj[ id ] ).length )
+                    Object.keys( obj[ id ] ).forEach( field =>
+                    {
+                        fields.indexOf( field ) < 0 ? fields.push( field ) : null;  
+                    } );
+                else
+                    fields.indexOf( id ) < 0 ? fields.push( id ) : null;
             } );
         } );
 
         scope.fields = fields.sort();
-        scope.docs = docs;
+        scope.ids = ids;
     }
 
     this.append( data );
@@ -219,7 +222,7 @@ const action =
                     if ( query.fields )
                     {
                         let obj = {};
-                        query.fields.forEach( field => obj[ field ] = d[ field ] )   
+                        query.fields.forEach( field => obj[ field ] = d[ field ] );
 
                         data.append( obj );
                     }
@@ -244,21 +247,28 @@ const action =
             return data;
         }
     },
-    /*doc:
+    doc:
     {
         select: async function( params )
         {
             var ref = db[ params.type ]( params.path );
             var doc = await ref.get();
-            var data =  new Data( { [ params.field ]: doc.get( params.field ) } );
-                data.collection = null;
+            var data = new Data( { [ params.field ]: doc.get( params.field ) || [] } );
+
+            return data;
+        },
+        update: async function( params )
+        {
+            var ref = db[ params.type ]( params.path );
+            await ref.set( { [ params.field ]: params.value }, { merge: true } );
+            let data = new Data( { [ params.field ]: params.value } );
 
             return data;
         }
-    }*/
+    }
 };
 
-/*module.exports.Path = function( params )
+module.exports.Path = function( params )
 {
     var scope = this;
     var path = params.path.split( "/" );
@@ -270,8 +280,9 @@ const action =
     this.exec = async function( data )
     {
         scope.data = await action[ params.type ][ params.action ]( params, data );
+        scope.data.collection = params.collection;
     };
-};*/
+};
 
 module.exports.Query = function( params )
 {   

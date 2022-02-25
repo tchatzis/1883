@@ -68,6 +68,20 @@ function fe( parent, tag )
     return parent.querySelector( tag );
 }
 
+function find( e, selector )
+{ 
+    var current = e.target;
+    var last;
+
+    while ( !current.querySelector( selector ) )
+    {
+        last = current;
+        current = current.parentNode;   
+    }
+
+    return last;
+}
+
 var docs = 
 {
     ac: ac,
@@ -75,7 +89,8 @@ var docs =
     bubble: bubble,
     clear: clear,
     cookie: cookie,
-    fe: fe
+    fe: fe,
+    find: find
 };
 
 export default docs;
