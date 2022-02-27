@@ -1,4 +1,5 @@
 const fs = require( "fs" );
+const db = require( "./utilities/firebase" );
 const queries = require( "./utilities/queries" );
 const utils = require( "./utilities/functions" );
 const nav = {};
@@ -116,40 +117,52 @@ const Route =
 };
 
 // routing
-// "label", "/endpoint/", { variables }
 var routes =
 [
-    new Route.Static( "Home", "/", {} ),
-    
-    new Route.Data(),
-    new Route.DB( "Tests", "/db/test", { content: "table", sub: null, sort: "name" } ),
-    new Route.DB( "Venues", "/db/venue", { content: "table", sub: null, sort: "name" } ),
-    new Route.DB( "Stock", "/db/stock", { content: "table", sub: null, tab: "storage", sort: "label" } ),
-    new Route.DB( "Items", "/db/item", { content: "table", sub: null, tab: "group", sort: "label" } ),
-    new Route.DB( "Events", "/db/event", { content: "calendar", sub: null, tab: "date", sort: "date" } ),
-
-    /*new Route.DB( "Brand", "/db/brand", { content: "table", sub: "label", sort: "label" } ),
-    new Route.DB( "Allergen", "/db/allergen", { content: "table", sub: "sequence", sort: "sequence" } ),
-    new Route.DB( "Group", "/db/group", { content: "table", sub: "sequence", sort: "sequence" } ),
-    new Route.DB( "Kitchen", "/db/kitchen", { content: "table", sub: "sequence", sort: "sequence" } ),
-    new Route.DB( "Plating", "/db/plating", { content: "table", sub: "sequence", sort: "sequence" } ),
-    new Route.DB( "Process", "/db/process", { content: "table", sub: "sequence", sort: "sequence" } ),
-    new Route.DB( "Status", "/db/status", { content: "table", sub: "sequence", sort: "sequence" } ),
-    new Route.DB( "Temp", "/db/temp", { content: "table", sub: "sequence", sort: "sequence" } ),*/
-
-    new Route.File( "", "/documents/:id", { directory: "assets/documents" } ),
-    new Route.Directory( "Documents", "/documents", { directory: "assets/documents" } ),
-    new Route.Download( "", "/downloads/:id", { directory: "assets/documents" } ),
-    new Route.Directory( "Downloads", "/downloads", { directory: "assets/documents" } ),
-    new Route.Logout( "Log Out", "/logout" ),
+    new Route.Data()
 ];
 
-module.exports.define = function( server )
+module.exports.load = async function( server )
+{
+    await db.collection( "schema" ).orderBy( "sequence", "desc" ).get().then( ( querySnapshot ) => 
+    {
+        querySnapshot.forEach( ( doc ) => 
+        {
+            var schema = doc.data();
+
+            if ( schema?.parameters?.fields )
+                schema.parameters.fields = schema.parameters.fields.map( field => field.field );
+
+            routes.push( new Route[ schema.class ]( schema.label, schema.endpoint, schema.parameters ) );
+        } );
+
+        routes.push( new Route.Logout( "Log Out", "/logout" ) );
+    } );
+
+    define( server );
+};
+
+function define( server )
 {
     var functions = {};
 
         functions[ "data" ] = async function( params )
         {
+            server.post( `/firestore`, async function( req, res )
+            {                    
+                var path = new queries.DB( req.body );
+
+                console.log( req.body );
+
+                //var label = doc.get( "label" );
+                //doc.ref.delete();
+                //doc.ref.update( { group: FieldValue.delete(), type: [] } );
+
+                await path.exec( req.body );
+
+                res.json( path.data );
+            } );
+            
             server.post( `/path`, async function( req, res )
             {                    
                 var path = new queries.Path( req.body );

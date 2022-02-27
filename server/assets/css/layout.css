@@ -1,6 +1,8 @@
 :root
 {
     
+    --border: 1px solid #444;
+    
     --font: Helvetica, Geneva, Verdana, sans-serif;
 
     --padding: 10px;
@@ -35,7 +37,7 @@
         flex: 1 1 100%;
         background-color: transparent;
         border-radius: 10px;
-        border: 1px solid silver;
+        border: var( --border );
         padding: var( --padding );
     }
 
@@ -104,7 +106,7 @@
 
     a:link, a:visited
     {
-        color: darkorchid;
+        color: silver;
     }
 
     a:hover
@@ -143,7 +145,7 @@
         flex: 0 1 60%;
         background-color: transparent;
         border-radius: 10px;
-        border: 1px solid silver;
+        border: var( --border );
         max-height: calc( 90vh );
         overflow-x: hidden;
         overflow-y: auto;
@@ -202,9 +204,13 @@
 
     .link
     {
+        border-radius: 4px;
         color: #666;
-        font-size: 0.7em;
+        cursor: pointer;
+        font-size: 0.8em;
         font-family: verdana;
+        padding: 2px;
+        width: 100%;
     }
 
     li.link
@@ -212,17 +218,17 @@
         border: 1px solid silver;
         border-radius: 4px;
         cursor: pointer;
-        display: block;
-        
+        display: block;   
         list-style-type: none;
         margin: 0 0 1px 0;
         padding: 0 10px 0 10px;
-        white-space: nowrap;
+        white-space: nowrap; 
     }
 
     .link:hover
     {
-        background-color: lightgreen;
+        background-color: black;
+        color: silver;
     }
 
     #message

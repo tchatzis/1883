@@ -268,6 +268,8 @@ const action =
     }
 };
 
+module.exports.DB = ( collection, callback ) => db.collection( collection ).get().then( snapshot => snapshot.forEach( doc => callback( doc ) ) );
+
 module.exports.Path = function( params )
 {
     var scope = this;

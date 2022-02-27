@@ -7,32 +7,14 @@ var Widgets = function( data )
 {   
     var widgets = this;
 
-    // path to nested object
-    function assign( obj, path, value ) 
-    {
-        var last = path.length - 1;
-
-        for ( let i = 0; i < last; ++ i ) 
-        {
-            let key = path[ i ];
-
-            if ( !( key in obj ) )
-            obj[ key ] = {};
-
-            obj = obj[ key ];
-        }
-
-        obj[ path[ last ] ] = value;
-    }
-    
-    function block( params )
+    function block( params, css )
     {   
         var wrapper = docs.ce( "div" );
             wrapper.classList.add( "field" );
         docs.ac( params.element, wrapper );
         
         var label = docs.ce( "div" );
-            label.classList.add( "column" );
+            label.classList.add( css || "label" );
         if ( params.headless )
             label.style.display = "none";
         docs.ac( wrapper, label );
@@ -44,74 +26,15 @@ var Widgets = function( data )
         return { label, div, wrapper };
     }
 
-    // extract deepest object and find path
-    function extract( object, path )
-    {  
-        var map = new Map();
-
-        var search = function( object, path )
-        {
-            if ( !object )
-                return { object, path };
-                
-            var type = typeof object == "object" ? Array.isArray( object ) ? "array" : "object" : "primitive";
-            
-            var loop = {};
-                loop.array = () =>
-                {
-                    for ( let prop = 0; prop < object.length; prop++ )
-                    {
-                        loop.next( prop, object );
-                        path.pop();
-                    }
-                };
-                loop.next = ( prop, object ) =>
-                {  
-                    object = object[ prop ];
-                    path.push( prop );
-                    search( object, path );
-                };
-                loop.object = () =>
-                {
-                    for ( let prop in object )
-                    {
-                        loop.next( prop, object );
-                        path.pop();
-                    }
-                };
-                loop.primitive = () => {};
-
-            loop[ type ]();
-
-            map.set( path.join( "." ), object );
-
-            return { object, path };
-        }
-
-        search( object, path );
-
-        return map;
-    }
-
-    // follow path to object value
-    function follow( object, path )
-    {          
-        if ( object )
-            for ( let i = 0; i < path.length; i++ )
-            {
-                if ( !object[ path[ i ] ] ) 
-                    return null;
-
-                object = object[ path[ i ] ];
-            }
-
-        return object;
-    }
-
     function listeners( el, params, object )
     {
         if ( params.listeners )
             params.listeners.forEach( listener => el.addEventListener( listener.event, ( e ) => { e.preventDefault(); listener.handler( e, params, object ) }, false ) );
+
+        var values = ( params.values && params.object ) ? params.values[ params.object ] : params.values;
+
+        if ( params.values )
+            el.addEventListener( "input", () => values[ el.name ] = el.value );
     }
 
     function normalize( array, params )
@@ -135,7 +58,6 @@ var Widgets = function( data )
         return array;
     }
 
-
     // widgets
     this.Array = function( params )
     {   
@@ -143,6 +65,8 @@ var Widgets = function( data )
         var section = docs.ce( "section" );
             section.title = params.name;
         var dnd = new DND(); 
+        var object = params.object ? params.values[ params.object ] : params.values;
+        var values = object[ params.name ] || [];
 
         function wrapper( d, parent )
         {
@@ -183,8 +107,9 @@ var Widgets = function( data )
             e.preventDefault();
 
             var row = parse( e );
-            var array = params.values[ params.name ];
-                array.push( row );
+            var value = params.tuple ? row.tuple() : row;
+            
+            values.push( value );
 
             e.target.reset();
 
@@ -193,8 +118,7 @@ var Widgets = function( data )
 
         this.delete = function( e )
         {
-            var array = params.values[ params.name ];
-                array.splice( e.dataset.index, 1 );
+            values.splice( e.target.dataset.index, 1 );
 
             scope.populate();
         };
@@ -202,16 +126,16 @@ var Widgets = function( data )
         this.update = function( e )
         {
             e.preventDefault();
-
+            
             var row = parse( e );
-            var array = params.values[ params.name ];
-                array[ e.submitter.dataset.index ] = row;
+            values[ e.submitter.dataset.index ] = params.tuple ? row.tuple() : row;
         }; 
 
         // run once
         this.init = function()
         {
             var { id, row } = wrapper( -1, params.element );
+            var headless = [];
             
             params.widgets.forEach( widget => 
             {
@@ -220,10 +144,13 @@ var Widgets = function( data )
                     params.element = row;
                     params.placeholder = widget.params.name;
 
+                if ( params.headless )
+                    headless.push( params.headless );
+
                 new widgets[ widget.class ]( params );
             } );
 
-            new widgets.Input( { type: "submit", Form: id, value: "\u002b", element: row } );
+            new widgets.Input( { type: "submit", Form: id, value: "\u002b", element: row, headless: headless.some( h => h ) } );
 
             docs.ac( params.element, section );
 
@@ -256,15 +183,25 @@ var Widgets = function( data )
         {
             section.innerHTML = null; 
 
-            params.values[ params.name ] = params.values[ params.name ] || [];
-            params.values[ params.name ].forEach( ( data, d ) => this.row( d, data ) );
+            var display_values;
 
-            scope.values = params.values;
+            if ( params.tuple )
+            {
+                display_values = [ ...values ].map( tuple => tuple.untuple() );
+                display_values.forEach( ( data, d ) => this.row( d, data ) );
+            }
+            else
+            {   
+                display_values = [ ...values ];
+                display_values.forEach( ( data, d ) => this.row( d, data ) );
+            }
+
+            object[ params.name ] = values;
         };
 
         this.init();
 
-        dnd.init( section, ( e ) => docs.find( e, "[draggable='true']" ), params.values[ params.name ] );
+        dnd.init( section, ( e ) => docs.find( e, "[draggable='true']" ), values );
     };
 
     this.Calendar = function( params )
@@ -347,11 +284,10 @@ var Widgets = function( data )
 
                 let current = new Date( day );
                 let css = current.getMonth() == selected.getMonth() ? "inside" : "outside";
-                let month = current.getMonth() + 1;
-                let mm = month < 10 ? `0${ month }` : month;
-                let date = current.getDate()
-                let dd = date < 10 ? `0${ date }` : date;
-                let value = [ current.getFullYear(), mm, dd ].join( "/" );
+
+                let value = dates.format( current );
+
+                
 
                 // add cell
                 let td = docs.ce( "td" );
@@ -427,6 +363,8 @@ var Widgets = function( data )
                             input.setAttribute( "checked", "" );
                         docs.ac( div, input );
 
+                        listeners( input, params );
+
                         let label = docs.ce( "label" );
                             label.setAttribute( "for", input.id );
                             label.innerText = value[ params.field ] + " ";
@@ -452,8 +390,10 @@ var Widgets = function( data )
         var input = docs.ce( "input" );
             input.type = "hidden";
             for ( let att in params )
-        if ( ![ "element", "headless", "listeners" ].some( hidden => hidden == att ) )
+        if ( ![ "element", "headless", "listeners", "values" ].some( hidden => hidden == att ) )
             input.setAttribute( att, params[ att ] );
+
+        listeners( input, params );
 
         var table = docs.ce( "table" );
             table.style.borderCollapse = "separate";
@@ -523,6 +463,8 @@ var Widgets = function( data )
         
         docs.ac( div, input );
 
+        listeners( input, params );
+
         this.populate = function()
         {   
             if ( this.data )
@@ -591,13 +533,14 @@ var Widgets = function( data )
 
         var input = docs.ce( "input" );
             input.type = "date";
-        //listeners( input, params );
+
+        listeners( input, params );
 
         for ( let att in params )
             if ( ![ "element", "headless", "listeners" ].some( hidden => hidden == att ) )
                 input.setAttribute( att, params[ att ] );
 
-        input.setAttribute( "value", params.value.replace( /\//g, "-") );
+        input.setAttribute( "value", dates.format( params.value, "-" ) );
         input.setAttribute( "data-date", params.value );
 
         docs.ac( div, input );
@@ -605,8 +548,11 @@ var Widgets = function( data )
         return input;
     };
 
-    this.Drilldown = function( array )
+    this.Drilldown = function( params )
     {   
+        var div = docs.ce( "div" );
+        docs.ac( params.element, div );
+        
         this.populate = () => {};
 
         function change( e, params )
@@ -614,49 +560,59 @@ var Widgets = function( data )
             var select = e.target;
             var value = select.options[ select.selectedIndex ].value;
             var selected = params.array.find( option => option[ params.field ] == value );
-            var options = selected[ select.dataset.name ];
-            var child = document.querySelector( `[ form="${ select.form.id }" ][ name="${ select.dataset.name }" ]` );
 
-            if ( child )
+            if ( selected )
             {
-                child.innerHTML = null;
+                let options = selected[ select.dataset.name ];
+                let child = document.querySelector( `[ form="${ select.form.id }" ][ name="${ select.dataset.name }" ]` );
 
-                if ( options )
-                    options.forEach( item =>
-                    {
-                        var option = docs.ce( "option" );
-                            option.text = item[ select.dataset.field ];
-                            option.value = item[ select.dataset.field ];
-                        docs.ac( child, option );
-                    } );
+                if ( child )
+                {
+                    child.innerHTML = null;
+
+                    if ( options )
+                        options.forEach( item =>
+                        {
+                            var option = docs.ce( "option" );
+                                option.text = item[ select.dataset.field ];
+                                option.value = item[ select.dataset.field ];
+                            docs.ac( child, option );
+                        } );
+                }
             }
         }
 
         ( async () =>
         {
-            for ( let i = 0; i < array.length; i++ )
+            var next;
+            
+            for ( let i = 0; i < params.config.length; i++ )
             {
-                let params = array[ i ];
-                let next = array[ i + 1 ];
+                let config = params.config[ i ];
+                    config.element = div;
+
+                next = params.config[ i + 1 ];
 
                 // get the data
-                await data.load.call( this, params );
+                await data.load.call( this, config );
 
                 // switch data to array from query
-                params.array = this.data.values;
-                delete params.query;
+                config.array = this.data.values;
+                delete config.query;
 
                 // invoke the select widget
-                let select = new widgets.Select( params );
-                    select.element.addEventListener( "change", ( e ) => change( e, params ) );
-                let selected = select.data.values.find( option => option[ params.field ] == params.value );
+                let select = new widgets.Select( config );
+                    select.element.addEventListener( "change", ( e ) => change( e, config ) );
+                let selected = select.data.values.find( option => option[ config.field ] == config.value );
 
-                // set next array
+                // set next config
                 if ( next )
                 {
                     select.element.dataset.name = next.name;
                     select.element.dataset.field = next.field;
-                    next.array = selected[ next.name ];
+
+                    if ( selected )
+                        next.array = selected[ next.name ];
                 }
             }
         } )();
@@ -668,10 +624,11 @@ var Widgets = function( data )
             label.innerText = params.name || "\n";
 
         var input = docs.ce( "input" );
+
         listeners( input, params );
 
         for ( let att in params )
-            if ( ![ "element", "headless", "listeners" ].some( hidden => hidden == att ) )
+            if ( ![ "element", "headless", "listeners", "values" ].some( hidden => hidden == att ) )
                 input.setAttribute( att, params[ att ] );
 
         docs.ac( div, input );
@@ -681,7 +638,7 @@ var Widgets = function( data )
 
     this.Matrix = function( params )
     {
-        var map = extract( params.values, [] );
+        //var map = extract( params.values, [] );
         
         var scope = this;
         var { label, div, wrapper } = block( params );
@@ -690,22 +647,38 @@ var Widgets = function( data )
         var table = docs.ce( "table" );
         docs.ac( div, table );
 
-        function change( e, args )
+        function change( e )
         {
-            /*var path = { ...args };
-                path.action = "update";
+            var input = e.target;
+            var form = input.form;
+            var forms = Array.from( form.parentNode.children );
 
-            var object = {};
-
-            assign( object, path.location, e.target.value );
-
-            path.value = object;
-
-            data.path.call( this, path );*/
+            scope.update( forms );
         }
+
+        this.update = function( forms )
+        {   
+            var object = params.values[ params.name ];
+
+            if ( typeof object !== "object" )
+                object = Object.assign( params.values, { [ params.name ]: {} } );
+
+            forms.forEach( form =>
+            {
+                for ( let element of form.elements ) 
+                {    
+                    if ( object[ element.id ] )
+                        Object.assign( object[ element.id ], { [ element.name ]: element.value } );
+                    else if ( object[ params.name ] )
+                        Object.assign( object[ params.name ], { [ element.id ]: { [ element.name ]: element.value } } );
+                    else
+                        Object.assign( params.values[ params.name ], { [ element.id ]: { [ element.name ]: element.value } } );    
+                }
+            } );
+        }; 
         
         this.populate = function() 
-        {    
+        {     
             if ( this.data )
             {   
                 // header row
@@ -714,6 +687,18 @@ var Widgets = function( data )
 
                 var td = docs.ce( "td" );
                 docs.ac( tr, td );
+
+                // add forms
+                scope.data.docs.forEach( doc =>
+                {
+                    var id = Object.keys( doc )[ 0 ];
+                    var form = docs.ce( "form" );
+                        form.setAttribute( "method", "post" );
+                        form.id = id;
+                    docs.ac( td, form );
+                } );
+
+                var forms = Array.from( td.children );
 
                 // column headers
                 var columns = this.data.values;
@@ -740,7 +725,7 @@ var Widgets = function( data )
                     // select data for each cell
                     scope.data.docs.forEach( async ( _doc ) => 
                     {
-                        var id = Object.keys( _doc )[ 0 ];
+                        var id = _doc.getKey();
                         var doc = _doc[ id ];
                         var array = doc[ widget.params.name ] || [];
 
@@ -748,23 +733,48 @@ var Widgets = function( data )
                             td.classList.add( "cell" );
                         docs.ac( tr, td );
                         
-                        let key = [ params.name, doc[ params.field ], widget.params.name ].join( "." );
                         let config = { ...widget.params  };
                             config.element = td;
+                            config.Form = id;
+                            config.id = doc[ params.field ];
                             config.headless = true;
                             config.array = array;
-                            config.listeners = [ { event: "change", handler: ( e ) => change( e, args ) } ];
-                            config.value = map.get( key );
-
-                            //console.log( follow( params.values, [ params.name, doc[ params.field ], widget.params.name ] ) );
+                            config.listeners = [ { event: "change", handler: ( e ) => change( e ) } ];
+                            config.value = params.values.getPath( [ params.name, doc[ params.field ], widget.params.name ] ).value;
  
                         new widgets[ widget.class ]( config ); 
                     } );
                 } );
+
+                scope.update( forms );
             }
         };
 
         data.load.call( scope, params );
+    };
+
+    this.Object = function( params )
+    {
+        var { label, div, wrapper } = block( params, "column" );
+            label.innerText = params.name || "\n";
+
+        div.classList.add( "object" );
+
+        var values = data.default( params.values, params.name, {} );
+  
+        params.widgets.forEach( widget => 
+        {
+            var object = data.default( values[ params.name ], widget.params.name, "" );
+            var value = object[ widget.params.name ]; 
+            var config = { ...widget.params  };
+                config.debug = true;
+                config.element = div;
+                config.object = params.name;
+                config.value = value;
+                config.values = values;
+
+            new widgets[ widget.class ]( config );
+        } );
     };
     
     this.Radio = function( params )
@@ -793,6 +803,8 @@ var Widgets = function( data )
                             input.setAttribute( "required", "" );
                         docs.ac( div, input );
 
+                        listeners( input, params );
+
                         let label = docs.ce( "label" );
                             label.setAttribute( "for", input.id );
                             label.innerText = value + " ";
@@ -815,8 +827,9 @@ var Widgets = function( data )
         var { label, div, wrapper } = block( params );
         var array = [];
         var input = docs.ce( "select" );
-        listeners( input, params );
         docs.ac( div, input );
+
+        listeners( input, params );
 
         this.element = input;
 
@@ -828,7 +841,7 @@ var Widgets = function( data )
 
                 // input 
                     input.name = this.data.name;
-                    input.id = this.data.name;
+                    input.id = params.id ? params.id : this.data.name;
                     input.value = params.value;
                 if ( params.Form )
                     input.setAttribute( "Form", params.Form );
@@ -915,6 +928,8 @@ var Widgets = function( data )
             input.type = "hidden";
         docs.ac( div, input );
 
+        listeners( input, params );
+
         var config = 
         {
             modules:
@@ -963,6 +978,27 @@ var Widgets = function( data )
             if ( control.hasOwnProperty( "visible" ) && !control.visible )
                 button.style.display = "none";
         } );   
+    };
+
+    this.Tuple = function( params )
+    {
+        params.element.classList.add( "object" );
+        
+        var config = 
+        {
+            id: params.values.getKey(),
+            values: params.values,
+            element: params.element,
+            name: params.name,
+            tuple: true,
+            widgets:
+            [
+                { class: "Input", params: { type: "text", name: "name", required: true, object: params.name } },
+                { class: "Input", params: { type: "text", name: "value", object: params.name } }
+            ]
+        };
+
+        new widgets.Array( config );
     };
 };
 

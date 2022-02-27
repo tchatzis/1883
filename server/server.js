@@ -25,7 +25,7 @@ server.use( "/images", express.static( path.join( __dirname, "assets/images" ) )
 server.use( authorize );
 
 // set routes
-routes.define( server )
+routes.load( server );
 
 server.listen( port, () => 
 {

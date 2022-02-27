@@ -9,6 +9,30 @@ function equals( date1, date2, fields )
     return array.every( comp => comp );
 }
 
+function format( current, delim )
+{
+    var regex = /^\d{4}[/.-](0[1-9]|1[0-2])[/.-](0[1-9]|[12][0-9]|3[01])$/;
+
+    if ( regex.test( current ) )
+        return current.replace( /\//g, "-" );
+    
+    if ( !current )
+        return null;
+    else if ( current.getMonth )
+    {
+        let delimiter = delim || "/";
+        let month = current.getMonth() + 1;
+        let mm = month < 10 ? `0${ month }` : month;
+        let date = current.getDate()
+        let dd = date < 10 ? `0${ date }` : date;
+        let value = [ current.getFullYear(), mm, dd ].join( delimiter );
+
+        return value;
+    }
+    else
+        return null;
+}
+
 function parse( date )
 {
     var data = {};
@@ -30,5 +54,6 @@ function parse( date )
 export default
 {
     equals: equals,
+    format: format,
     parse: parse
 }

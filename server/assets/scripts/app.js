@@ -1,6 +1,6 @@
-import Templates from "./templates.js";
+import Content from "./content.js";
 
 window.app = 
 { 
-    Templates: Templates 
+    Content: Content 
 };

@@ -2,61 +2,6 @@ const Data = function()
 {
     var scope = this;
 
-    // helpers
-    function flatten( array )
-    {
-        var string = array;
-        
-        while ( Array.isArray( string ) )
-            string = string[ 0 ];
-
-        return string;
-    }
-
-    function sort( data, field )
-    { 
-        var sorted = [];
-        var values = [];
-
-        if ( !field )
-            return data;
-        
-        else
-        {
-            data.forEach( obj =>
-            {   
-                for ( let key in obj )
-                { 
-                    if ( obj?.hasOwnProperty( key ) )
-                    {                
-                        if ( obj[ key ]?.hasOwnProperty( field ) )
-                        {   
-                            let value = isNaN( obj[ key ][ field ] ) ? obj[ key ][ field ].toLowerCase() : obj[ key ][ field ];
-                            let index = values.findIndex( val => val >= value );
-
-                            if ( index < 0 )
-                            {
-                                values.push( value );
-                                sorted.push( obj );
-                            }
-                            else
-                            {
-                                values.splice( index, 0, value );  
-                                sorted.splice( index, 0, obj ); 
-                            }
-                        }
-                        else
-                        {
-                            console.info( field, "is not defined in", key, obj, "with value", obj[ key ] );
-                        }
-                    }
-                }
-            } );
-
-            return sorted;
-        }
-    }
-
     // defaults
     this.docs = {};
     this.fields = {};
@@ -66,11 +11,16 @@ const Data = function()
     // methods
     this.append = function( result )
     {       
-        var id = flatten( result.ids );
-        var data = flatten( result.data );
+        var id = result.ids.flatten();
+        var data = result.data.flatten();
         var doc = data[ id ];
 
         scope.store[ scope.collection ].push( { [ id ]: doc } );    
+    };
+
+    this.default = function( object, key, value )
+    {
+        return Object.assign( object, { [ key ]: object[ key ] || value } );
     };
 
     this.delete = async function( params )
@@ -107,7 +57,7 @@ const Data = function()
         var result = await response.json();
 
         scope.append( result );
-        scope.store[ scope.collection ] = sort( scope.store[ scope.collection ], scope.schema[ scope.collection ].sort );
+        scope.store[ scope.collection ] = scope.store[ scope.collection ].sortKey( scope.schema[ scope.collection ].sort );
     };
 
     this.load = async function( params )
@@ -116,7 +66,7 @@ const Data = function()
         {
             let values = [];
 
-            scope.store[ collection ] = sort( scope.store[ collection ], params.sort );
+            scope.store[ collection ] = scope.store[ collection ].sortKey( params.sort );
             
             scope.store[ collection ].forEach( row =>
             {
@@ -180,7 +130,7 @@ const Data = function()
 
         scope.docs[ collection ] = result.data;
         scope.fields[ collection ] = result.fields;
-        scope.store[ collection ] = sort( result.data, scope.schema[ scope.collection ].sort ); 
+        scope.store[ collection ] = result.data.sortKey( scope.schema[ scope.collection ].sort ); 
     };
 
     this.remove = function( doc )
@@ -199,7 +149,7 @@ const Data = function()
 
         scope.docs[ collection ] = result.data;
         scope.fields[ collection ] = result.fields;
-        scope.store[ collection ] = sort( result.data, params.sort );
+        scope.store[ collection ] = result.data.sortKey( params.sort );
     };
 
     this.select = async function( params )
@@ -211,7 +161,7 @@ const Data = function()
         scope.collection = collection;
         scope.docs[ scope.collection ] = result.data;
         scope.fields[ scope.collection ] = result.fields; 
-        scope.store[ scope.collection ] = sort( result.data, scope.schema[ scope.collection ].sort );
+        scope.store[ scope.collection ] = result.data.sortKey( scope.schema[ scope.collection ].sort );
     };
 
     this.update = async function( params )
@@ -221,8 +171,7 @@ const Data = function()
 
         scope.modify( result );
 
-        //scope.collection = params.url.split( "/" )[ 2 ];
-        scope.store[ scope.collection ] = sort( scope.store[ scope.collection ], scope.schema[ scope.collection ].sort );
+        scope.store[ scope.collection ] = scope.store[ scope.collection ].sortKey( scope.schema[ scope.collection ].sort );
     };
 };
 

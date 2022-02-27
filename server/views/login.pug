@@ -9,6 +9,6 @@ block script
     script.
         window.addEventListener( "load", () =>
         {
-            var template = new window.app.Templates();
-                template.init( { content: "login", path: "/db/users" } );
+            var content = new window.app.Content();
+                content.init( { content: "login", path: "/db/users" } );
         } );

@@ -2,5 +2,4 @@ nav.noprint
     if ( nav )
         each link in nav.main
             if link.label
-                a( href= link.url )= link.label
-                br
+                div.link( onclick= `location.href = '${ link.url }';` )= link.label
