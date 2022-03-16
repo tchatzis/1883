@@ -22,6 +22,18 @@ Object.defineProperty( Object.prototype, 'untuple',
     enumerable: false
 } );
 
+Object.defineProperty( Object.prototype, 'getChild', 
+{
+    value: function ( key, prop, def )
+    {
+        this[ key ] = this[ key ] || def;
+        
+        return this[ key ][ prop ] || Object.assign( this[ key ], { [ prop ]: def } )[ prop ];
+    },
+
+    enumerable: false
+} );
+
 Object.defineProperty( Object.prototype, 'getPath', 
 {
     value: function( path )
@@ -268,3 +280,44 @@ Object.defineProperty( Array.prototype, 'flatten',
 } );
 
 export default Object.prototype;
+
+/*function extract( body )
+{
+    var data = {};
+
+    if ( body )
+    {
+        var collections = new Map();
+
+        for ( let field in body )
+            data[ collection( field ).collection ] = {};
+
+        for( let col of collections )
+        {    
+            let object = {};
+            
+            for ( let field in body )
+            {
+                let c = collection( field );
+
+                if ( col[ 0 ] == c.collection )
+                    object[ c.field ] = body[ field ];
+            }
+
+            data[ col[ 0 ] ] = object;
+
+            collections.set( col[ 0 ], data[ col[ 0 ] ] );
+        };
+
+        function collection( name )
+        {
+            var s = name.split( "." );
+            
+            collections.set( s[ 0 ], {} );
+            
+            return { collection: s[ 0 ], field: s[ 1 ] };
+        }
+    }
+
+    return data;
+}*/

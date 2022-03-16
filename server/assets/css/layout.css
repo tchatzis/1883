@@ -142,7 +142,7 @@
 
     div.content
     {
-        flex: 0 1 60%;
+        flex: 0 1 30%;
         background-color: transparent;
         border-radius: 10px;
         border: var( --border );
@@ -186,6 +186,11 @@
     {
         color: #666;
         font-size: 0.8em;
+    }
+
+    .hidden
+    {
+        display: none;
     }
 
     #loader
@@ -289,7 +294,7 @@
 
     #sub
     {
-        flex: 0 1 30%;
+        flex: 0 1 60%;
     }
 
     ul

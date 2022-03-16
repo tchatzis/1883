@@ -1,0 +1,18 @@
+extends partials/layout
+
+block content
+    header
+        h1= title
+
+    div#content
+
+block sub 
+    div#sub
+        
+block script 
+    script.
+        window.addEventListener( "load", () =>
+        {
+            var content = new window.app.Content();
+                content.init( { content: "offline", sub: "!{ sub }", tab: "!{ tab }", path: "!{ path }", sort: "!{ sort }", fields: "!{ fields }" } ); 
+        } );

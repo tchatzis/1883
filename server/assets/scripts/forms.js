@@ -19,7 +19,7 @@ function parse( e )
         if ( temp.hasOwnProperty( prop ) )
         {
             let value = ( temp[ prop ].length == 1 ) ? temp[ prop ][ 0 ] : temp[ prop ];
-                value = value.trim();
+                value = ( typeof value == "string" ) ? value.trim() : value;
                 value = Date.parse( value ) ? value.replace( /-/g, "/" ) : value;
             
             body[ prop ] = +value || value;       

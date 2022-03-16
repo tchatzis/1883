@@ -1,5 +1,3 @@
-import docs from "./docs.js";
-
 var DND = function()
 {
     var scope = this;
@@ -68,11 +66,12 @@ var DND = function()
     };
 
     this.reorder = ( el ) =>
-    {
-        var drag = Number( el.dataset.index );
-        var drop = Number( scope.element.dataset.index );
+    {        
+        var dropIndex = Number( el.dataset.index );
+        var dragIndex = Number( scope.element.dataset.index );
+        var dragValue = scope.values.splice( dragIndex, 1 )[ 0 ];
 
-        scope.values.splice( drag, 1, scope.values[ drop ] );
+        scope.values.splice( dropIndex, 0, dragValue );
     };
 
     this.start = ( e ) =>

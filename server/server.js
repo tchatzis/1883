@@ -22,13 +22,15 @@ server.use( "/css", express.static( path.join( __dirname, "assets/css" ) ) );
 server.use( "/js", express.static( path.join( __dirname, "assets/scripts" ) ) );
 server.use( "/", express.static( path.join( __dirname, "assets/favicon" ) ) );
 server.use( "/images", express.static( path.join( __dirname, "assets/images" ) ) );
-server.use( authorize );
+//server.use( authorize );
 
 // set routes
-routes.load( server );
-
-server.listen( port, () => 
+( async () =>
 {
-    console.log( `server running at http://${ hostname }:${ port }` );
-} );
+    await routes.test( server );
 
+    server.listen( port, () => 
+    {
+        console.log( `server running at http://${ hostname }:${ port }` );
+    } );
+} )();

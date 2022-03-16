@@ -68,9 +68,9 @@ function fe( parent, tag )
     return parent.querySelector( tag );
 }
 
-function find( e, selector )
+function find( current, selector )
 { 
-    var current = e.target;
+    //var current = e.target;
     var last;
 
     while ( !current.querySelector( selector ) )

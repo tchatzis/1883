@@ -82,9 +82,9 @@ input[ type = number ]
 
 label
 {
-    color: orange;
+    color: white;
     cursor: pointer;
-    padding-left: 2em;
+    padding: 0 2em 0 0.5em;
 }
 
 .object
@@ -116,7 +116,8 @@ option
 
 .right
 {
-    float: right;
+    justify-content: right;
+    width: 100%;
 }
 
 section *
@@ -127,6 +128,7 @@ section *
 select
 {
     min-width: 8em;
+    padding: 1px;
 }
 
 .select

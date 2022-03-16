@@ -5,6 +5,7 @@ const Data = function()
     // defaults
     this.docs = {};
     this.fields = {};
+    this.map = new WeakMap();
     this.schema = {};
     this.store = {};
 
@@ -60,8 +61,10 @@ const Data = function()
         scope.store[ scope.collection ] = scope.store[ scope.collection ].sortKey( scope.schema[ scope.collection ].sort );
     };
 
-    this.load = async function( params )
+    this.load = async function( config )
     {
+        var params = config.model;
+        
         function values( collection )
         {
             let values = [];
@@ -83,16 +86,16 @@ const Data = function()
             if ( !scope.store[ collection ] )
                 await scope.path( params );
 
-            this.data = { name: params.name, values: values( collection ), collection: collection, docs: scope.docs[ collection ] };
-            this.populate( params );
+            this.data = { name: config.name, values: values( collection ), collection: collection, docs: scope.docs[ collection ] };
+            this.populate( config );
 
             return this.data;
         }
 
         if ( params.array )
         {
-            this.data = { name: params.name, values: params.array };
-            this.populate();
+            this.data = { name: config.name, values: params.array };
+            this.populate( config );
 
             return this.data;
         }
@@ -106,8 +109,8 @@ const Data = function()
             if ( !scope.store[ collection ] )
                 await scope.query( { url: `/query`, sort: params.sort, query: params.query } );
 
-            this.data = { name: params.name, values: values( collection ), collection: collection, docs: scope.docs[ collection ] };
-            this.populate();
+            this.data = { name: config.name, values: values( collection ), collection: collection, docs: scope.docs[ collection ] };
+            this.populate( config );
 
             return this.data;
         } 
@@ -159,7 +162,6 @@ const Data = function()
         var collection = result.collection.substring( 1 );
 
         scope.collection = collection;
-        scope.docs[ scope.collection ] = result.data;
         scope.fields[ scope.collection ] = result.fields; 
         scope.store[ scope.collection ] = result.data.sortKey( scope.schema[ scope.collection ].sort );
     };
