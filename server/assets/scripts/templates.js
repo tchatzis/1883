@@ -22,8 +22,6 @@ const Templates = function()
             },
             select: ( doc ) => 
             {
-                console.trace( doc );
-                
                 scope.elements.content.load = true;
                 
                 scope.view[ scope.settings.action ] = 

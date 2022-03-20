@@ -70,6 +70,24 @@ export async function load()
     
     //new scope.imports.widgets.Input( { scope: scope, name: "input", required: true, type: "text", value: doc.getField( "name" ) } );
 
+    /*var matrix = 
+            {
+                id: id,
+                values: values,
+                parent: div,
+                name: "storage",
+                field: "name",
+                query: `select * from venue`,
+                collection: scope.collection,
+                widgets:
+                [
+                    { class: "Select", config: { name: "storage", field: "label" } },
+                    { class: "Input", config: { name: "inventory", field: "quantity", type: "number", min: 0 } }
+                ]
+            };
+
+    new widgets.Matrix( matrix );*/
+
     /*new scope.imports.widgets.Radios( { scope: scope, name: "radios",
     model:
     { 

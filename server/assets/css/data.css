@@ -47,6 +47,12 @@ input, select
     outline: none;
 }
 
+input:disabled
+{
+    opacity: 0.3;
+    pointer-events: none;
+}
+
 input[ type = checkbox ]
 {
     background-color: black;

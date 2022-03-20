@@ -1,4 +1,3 @@
-import Common from "./common.js";
 import docs from "../docs.js";
 
 export default function Toolbar( config )
@@ -9,9 +8,11 @@ export default function Toolbar( config )
         toolbar.classList.add( "noprint" );
     docs.ac( config.scope.form.parent, toolbar );
 
+    config.scope.controls = {};
+
     config.controls.forEach( control =>
     {
-        new config.scope.imports.widgets.Control( { type: "image", src: `/images/${ control.title }.png`, title: control.title, width: 32, height: 32, 
+        config.scope.controls[ control.title ] = new config.scope.imports.widgets.Control( { type: "image", src: `/images/${ control.title }.png`, title: control.title, width: 32, height: 32, 
         Form: control.Form,
         headless: true,
         listeners: control.listeners,

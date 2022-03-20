@@ -170,7 +170,7 @@ const Events = function()
         console.log( data );
     };
   
-    scope.on.prevent = async ( e ) => e.preventDefault();
+    scope.on.prevent = ( e ) => e.preventDefault();
 
     scope.on.select = ( e, doc ) =>
     {
@@ -181,7 +181,7 @@ const Events = function()
         scope.setView( "update" );
     },
 
-    scope.on.stop = async ( e ) => e.stopPropagation();
+    scope.on.stop = ( e ) => e.stopPropagation();
 
     scope.on.tab = ( e ) =>
     {

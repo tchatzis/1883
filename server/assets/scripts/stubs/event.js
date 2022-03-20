@@ -27,7 +27,7 @@ export async function load()
             query: `select * from venue`, 
             sort: "name"  
         } } }, 
-        { class: "Select", config: { name: "room", required: true, value: doc.getField( "room" ), 
+        { class: "Select", config: { name: "rooms", required: true, value: doc.getField( "room" ), 
         model:
         {
             array: [],

@@ -10,89 +10,125 @@ export default function Drilldown( config )
     config.doc = config.scope.getDoc();
     config.default = {};
 
-    console.log( config.doc );
-
     var data = config.doc.data?.[ config.name ] || Object.assign( config.doc.data, { [ config.name ]: config.default } )[ config.name ];
     var scope = this;
     var imports = config.scope.imports;
     var index = 0;
     var names = [];
-    var next;
 
     this.block( config );
     this.label.innerText = config.name || "\n";
+    this.select = {};
     this.name = config.name;
-    this.path = [];
     this.widgets = config.widgets;
 
-    function increment()
-    {
-        index++;
-        next = names[ index ];
-    }
+    function init()
+    {   
+        config.widgets.forEach( ( widget, index ) => 
+        {
+            names.push( widget.config.name ); 
+        } );
+        
+        load( config );
+    };   
 
     async function load( config )
-    {        
-        let widget = scope.widgets[ index ];
-        let _config = new config.scope.imports.widgets.Config( widget.config.name, scope, config );
-            _config.Form = scope.name;
+    {       
+        if ( !config.model.array )
+        {
+            let widget = scope.widgets[ index ];
+            let _config = new config.scope.imports.widgets.Config( widget.config.name, scope, config );
+    
+            Object.assign( widget.config, _config );
 
-        Object.assign( widget.config, _config );
-
-        await widget.config.model.data.load.call( scope, widget.config );
-    }
+            await config.data.load.call( scope, widget.config );
+        }
+        else
+            scope.populate( config ); 
+    }   
 
     this.populate = ( config ) =>
     {
-        // switch data to array from query
-        config.model.array = config.model.array || this.data.values;
-        delete config.model.query;
+        if ( config.model.query )
+            delete config.model.query;
 
-        this.render( config );
+        if ( !config.model.array )
+            config.model.array = this.data.values;
+
+        render( config );
     };
 
-    this.render = ( config ) => 
+    async function render( config )
     {        
         if ( index < scope.widgets.length )
         {
             // change listener
-            config.listeners = [ { event: "change", handler: () => 
-            {
-                scope.path.push( config.name );
-                data[ config.name ] = select.input.value;
+            config.listeners = [ { event: "change", handler: handler } ];
 
-                let selected = select.data.values.find( option => option[ config.model.field ] == select.input.value );
-
-                let _config = new config.scope.imports.widgets.Config( config.name, scope, config );
-                    _config.Form = scope.name;
-                    _config.model = Object.assign( config.model, { array: selected[ next ] } );
-                    _config.name = next;
-
-                    delete config.doc.data[ config.name ];
-
-                this.render( _config );
-            } } ];
             // invoke the select widget
-            let select = new imports.widgets.Select( config );
+            config.Form = scope.name; 
+            config.value = config.value || data[ config.name ];
 
-            // get selected
-            let container = docs.find( select.parent, ".field" ); 
-            let value = data[ config.model.field ] || config.value;
-            let selected = select.data.values.find( option => option[ config.model.field ] == value );
+            scope.select[ index ] = await new imports.widgets.Select( config );
+            scope.select[ index ].input.dataset.index = index;
+            scope.select[ index ].config = config;
 
-            if ( selected )
-                container.classList.remove( "hidden" );
-
-            increment();    
+            next.call( scope.select[ index ] );  
         }
     };
 
-    this.init = async () =>
+    function next()
+    {    
+        let selected = this.data.values.find( option => option[ this.config.model.field ] == this.input.value );
+
+        if ( selected )
+        {
+            index++;
+            
+            let name = names[ index ];
+
+            let _config = { ...this.config };     
+                _config.model.array = selected[ name ];
+                _config.mother.name = scope.name;
+                _config.name = name;
+                _config.value = data[ name ] || "";
+
+            if ( name )
+                load( _config );
+        }
+    }
+    
+    function handler( e )
     {
-        load( config );
+        e.preventDefault();
 
-        config.widgets.forEach( widget => names.push( widget.config.name ) );
-    };
+        index = Number( e.target.dataset.index );
+        
+        if ( e.target.value )
+            data[ scope.select[ index ].name ] = e.target.value;
+        else
+            delete data[ scope.select[ index ].name ];
 
-    this.init();
+        clear();
+
+        config.scope.controls[ "save" ].enable( Object.values( data ).length == scope.widgets.length );
+
+        next.call( scope.select[ index ] );
+    }
+
+    function clear()
+    {
+        // remove children
+        for ( let i = index + 1; i < scope.widgets.length; i++ )
+        {
+            if ( scope.select[ i ] )
+            {
+                scope.select[ i ].parent.parentNode.remove();
+
+                delete data[ scope.select[ i ].name ];
+            }
+        }
+    }
+
+    init();
 }
