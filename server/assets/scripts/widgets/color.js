@@ -12,15 +12,12 @@ export default function Color( config )
     this.block( config );
     this.label.innerText = config.name || "\n";
     this.input = docs.ce( "input" );
+    this.attributes( config, input, [ "type" ] );
     this.input.type = "hidden";
 
     docs.ac( this.parent, this.input );
 
     this.listeners( this.input, config );
-
-    for ( let att in config )
-        if ( !this.hidden.concat( [ "type" ] ).some( hidden => hidden == att ) )
-            this.input.setAttribute( att, config[ att ] );
 
     var table = docs.ce( "table" );
         table.style.borderCollapse = "separate";

@@ -6,6 +6,8 @@ export async function load()
     let scope = this;
     let doc = scope.getDoc();
 
+    //console.log( doc );
+
     /*new scope.imports.widgets.Array( { scope: scope, name: "array", value: doc.getField( "array" ),
     widgets:
     [
@@ -26,13 +28,15 @@ export async function load()
         { event: "select", handler: scope.on.select }
     ] } );*/
 
-    /*new scope.imports.widgets.Checkboxes( { scope: scope, name: "checkboxes",
+    new scope.imports.widgets.Checkboxes( { scope: scope, name: "checkboxes",
     model:
     {
-        array: doc.getField( "assign" ), 
-        data: scope.imports.data
+        data: scope.imports.data,
+        field: "label",
+        query: "select * from allergen",
+        sort: "label"
     }, 
-    headless: false, nobreak: true } );*/
+    headless: false, nobreak: true } );
 
     //new scope.imports.widgets.Color( { scope: scope, name: "color", required: true, value: "#666666" } );
 
@@ -48,7 +52,7 @@ export async function load()
 
     //new scope.imports.widgets.Date( { scope: scope, name: "date", required: true, value: new Date() } );
 
-    new scope.imports.widgets.Drilldown( { scope: scope, name: "drilldown",
+    /*new scope.imports.widgets.Drilldown( { scope: scope, name: "drilldown",
     widgets: 
     [ 
         { class: "Select", config: { name: "group", required: true, value: doc.getField( "group" ),
@@ -66,7 +70,7 @@ export async function load()
             data: scope.imports.data,
             field: "label"
         } } }, 
-    ] } );
+    ] } );*/
     
     //new scope.imports.widgets.Input( { scope: scope, name: "input", required: true, type: "text", value: doc.getField( "name" ) } );
 
@@ -87,6 +91,28 @@ export async function load()
             };
 
     new widgets.Matrix( matrix );*/
+
+    new scope.imports.widgets.Object( { scope: scope, name: "object",
+    widgets:
+    [ 
+        { class: "Select", config: { name: "content", required: true,
+            model:
+            {
+                array: [ "table", "calendar", "offline" ],
+                data: scope.imports.data,
+            } 
+        } },
+        { class: "Checkboxes", config: { name: "fields", required: true,
+            model:
+            {
+                array: scope.imports.data.fields[ scope.settings.collection ],
+                data: scope.imports.data,
+            },
+            nobreak: true 
+        } },
+        { class: "Input", config: { name: "sort", required: true } }, 
+        { class: "Input", config: { name: "tab", required: true } }, 
+    ] } );
 
     /*new scope.imports.widgets.Radios( { scope: scope, name: "radios",
     model:

@@ -10,6 +10,19 @@ const Templates = function()
     {
         "default":
         {
+            data: ( doc ) =>
+            {
+                scope.elements.content.load = false;
+                scope.elements.sub.load = false;
+                scope.elements.data.parent = document.getElementById( "data" );
+
+                scope.view[ scope.settings.action ] = 
+                {
+                    content: scope.elements.content,
+                    data: Object.assign( scope.elements.data, { stub: "tbody", doc: doc, load: true } ),
+                    sub: scope.elements.sub
+                };
+            },
             insert: ( doc ) => 
             {
                 scope.elements.content.load = false;

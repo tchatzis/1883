@@ -166,7 +166,6 @@ async function online( server )
         } );
 
         routes.push( new Route.Logout( "Log Out", "/logout" ) );
-
     } );
 
     define( server );

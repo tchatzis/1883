@@ -12,10 +12,9 @@ export default function Datalist( config )
     this.block( config );
     this.label.innerText = config.name || "\n";
     this.input = docs.ce( "input" );
+    this.attributes( config, this.input );
     this.input.placeholder = config.name;
     this.input.setAttribute( "value", config.value || "" );
-
-    [ "Form", "required" ].forEach( att => { if ( config[ att ] ) this.input.setAttribute( att, config[ att ] ) } );
     
     docs.ac( this.parent, this.input );
 
@@ -45,7 +44,7 @@ export default function Datalist( config )
                 {
                     let array = [];
 
-                    config.field.forEach( ( field, index ) =>
+                    config.model.field.forEach( ( field, index ) =>
                     {
                         if ( index > 0 )
                         {

@@ -12,6 +12,7 @@ export default function Select( config )
     this.block( config );
     this.label.innerText = config.name || "\n";
     this.input = docs.ce( "select" );
+    this.attributes( config, this.input );
     
     docs.ac( this.parent, this.input );
 
@@ -34,8 +35,6 @@ export default function Select( config )
                 let container = docs.find( this.input, ".field" );
                 container.classList.add( "hidden" );
             }
-
-            [ "Form", "required" ].forEach( att => { if ( config[ att ] ) this.input.setAttribute( att, config[ att ] ) } );
 
             // empty option
             let option = docs.ce( "option" );

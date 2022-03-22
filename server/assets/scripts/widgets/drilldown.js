@@ -1,6 +1,5 @@
 import Common from "./common.js";
 import Config from "./config.js";
-import docs from "../docs.js";
 
 export default function Drilldown( config )
 {   
@@ -16,11 +15,12 @@ export default function Drilldown( config )
     var index = 0;
     var names = [];
 
-    this.block( config );
-    this.label.innerText = config.name || "\n";
     this.select = {};
     this.name = config.name;
     this.widgets = config.widgets;
+    this.block( config );
+    this.label.innerText = config.name || "\n";
+    this.label.classList.add( "column" );
 
     function init()
     {   
@@ -86,8 +86,11 @@ export default function Drilldown( config )
             index++;
             
             let name = names[ index ];
+            let widget = scope.widgets[ index ];
 
-            let _config = { ...this.config };     
+            let _config = { ...this.config }; 
+                if ( widget )
+                    _config.model = { ...widget.config.model };    
                 _config.model.array = selected[ name ];
                 _config.mother.name = scope.name;
                 _config.name = name;

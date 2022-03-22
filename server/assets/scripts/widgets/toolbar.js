@@ -6,9 +6,8 @@ export default function Toolbar( config )
         toolbar.classList.add( "flex" );
         toolbar.classList.add( "right" );
         toolbar.classList.add( "noprint" );
+        toolbar.title = "toolbar";
     docs.ac( config.scope.form.parent, toolbar );
-
-    config.scope.controls = {};
 
     config.controls.forEach( control =>
     {

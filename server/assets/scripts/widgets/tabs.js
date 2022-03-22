@@ -4,7 +4,7 @@ import docs from "../docs.js";
 export default function Tabs( config )
 {
     Common.call( this, config );
-    
+
     var tabs = [];
     var values = [ ...config.values ];
         values.forEach( doc => 
@@ -20,6 +20,7 @@ export default function Tabs( config )
     {
         let div = docs.ce( "div" );
             div.classList.add( "flex" );
+            div.title = config.name;
         docs.ac( config.parent, div );
 
         let label = docs.ce( "div" );
@@ -40,4 +41,8 @@ export default function Tabs( config )
             underline.classList.add( "underline" );
         docs.ac( div, underline );
     }
+
+    config.scope.controls[ config.name ] = this;
+
+    this.enabled = !tabs.length;
 }

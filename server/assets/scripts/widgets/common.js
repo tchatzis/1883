@@ -2,10 +2,20 @@ import docs from "../docs.js";
 
 export default function()
 {   
+    this.attributes = ( config, input, more ) =>
+    {   
+        var keys = more || [];
+        
+        for ( let att in config )
+            if ( !this.hidden.concat( keys ).some( hidden => hidden == att ) )
+                if ( config[ att ] )
+                    input.setAttribute( att, config[ att ] );
+    };
+    
     this.block = ( config, css ) =>
     {   
         this.name = config.name;
-        
+
         var wrapper = docs.ce( "div" );
             wrapper.classList.add( "field" );
         docs.ac( config.parent, wrapper );
@@ -23,7 +33,7 @@ export default function()
 
     this.broadcast = ( config ) => {};// console.log( config.doc.data );
 
-    this.hidden = [ "data", "default", "doc", "element", "form", "headless", "hide", "listeners", "mother", "parent", "scope", "values", "widgets" ];
+    this.hidden = [ "data", "default", "doc", "element", "form", "headless", "hide", "listeners", "model", "mother", "nobreak", "parent", "scope", "values", "widgets" ];
 
     this.listeners = ( el, config, object ) =>
     {   

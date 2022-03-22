@@ -8,6 +8,7 @@ export default function Control( config )
     this.block( config );
     this.label.innerText = config.name || "\n";
     this.input = docs.ce( "input" );
+    this.attributes( config, this.input );
     this.input.placeholder = config.name;
     this.input.dataset.name = config.name;
 
@@ -20,11 +21,6 @@ export default function Control( config )
         else
             this.input.setAttribute( "disabled", "" );
     };
-
-    for ( let att in config )
-        if ( !this.hidden.concat( [ "name", "placeholder" ] ).some( hidden => hidden == att ) )
-            if ( config[ att ] )
-                this.input.setAttribute( att, config[ att ] );
 
     docs.ac( this.parent, this.input );
 };

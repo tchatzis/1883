@@ -15,6 +15,7 @@ const Content = function()
             docs: docs
         };
         scope.imports.widgets = new Widgets( scope );
+        scope.controls = {};
 
     Events.call( scope );
 

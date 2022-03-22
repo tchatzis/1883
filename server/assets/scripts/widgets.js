@@ -5,13 +5,15 @@ import Arrays from "./widgets/array.js";
 import Calendar from "./widgets/calendar.js";
 import Checkboxes from "./widgets/checkboxes.js";
 import Color from "./widgets/color.js";
-import Common from "./widgets/common.js";
 import Control from "./widgets/control.js";
 import Date from "./widgets/date.js";
 import Datalist from "./widgets/datalist.js";
 import Drilldown from "./widgets/drilldown.js";
+import Editor from "./widgets/editor.js";
 import Input from "./widgets/input.js";
+import Label from "./widgets/label.js";
 import Matrix from "./widgets/matrix.js";
+import Objects from "./widgets/object.js";
 import Radios from "./widgets/radios.js";
 import Select from "./widgets/select.js";
 import Tabs from "./widgets/tabs.js";
@@ -49,9 +51,13 @@ var Widgets = function( scope )
 
     this.Drilldown = Drilldown;
 
+    this.Editor = Editor;
+
     this.Input = Input;
 
-    this.List = function( config )
+    this.Label = Label;
+
+    /*this.List = function( config )
     {   
         Common.call( this );
         
@@ -134,8 +140,10 @@ var Widgets = function( scope )
 
             new widgets[ widget.class ]( config );
         } );
-    };
-    
+    };*/
+
+    this.Object = Objects;
+
     this.Radios = Radios;
     
     this.Select = Select;

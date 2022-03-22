@@ -9,6 +9,9 @@ const Events = function()
     {   
         e.preventDefault();
 
+        let doc = scope.view.data.data.doc;
+
+        scope.setDoc( "insert", doc );
         scope.setView( "insert" );
     },
         
@@ -185,13 +188,19 @@ const Events = function()
 
     scope.on.tab = ( e ) =>
     {
-        var el = e.target;
-
-        console.warn( el );
+        let el = e.target;
+        let doc = new scope.Doc();
+            doc.id = scope.settings.collection;
+            doc.data = { [ scope.settings.tab ]: el.innerText };
+            doc.doc = { [ doc.id ]: doc.data };
         
-        /*data.schema[ scope.collection ].filter.value = value;
+        scope.imports.data.schema[ scope.settings.collection ].filter.value = el.innerText;
+        scope.controls[ "add" ].enable( true );
+        
+        scope.setDoc( "data", doc );
+        scope.setView( "data" );
 
-        var tabs = scope.view.get( "tabs" );
+        /*var tabs = scope.view.get( "tabs" );
             tabs.action = "tab";
             tabs.child = el;
         dom.change( tabs );

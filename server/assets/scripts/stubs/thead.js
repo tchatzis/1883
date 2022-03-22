@@ -9,9 +9,12 @@ export function load()
             widgets: {}
         };
 
-    new scope.imports.widgets.Input( { scope: scope, type: "image", src: "/images/add.png", title: "Add", width: 36, height: 36, 
-    headless: true, 
-    listeners: [ { event: "click", handler: scope.on.add } ] } );
+    new scope.imports.widgets.Toolbar( { scope: scope, controls:
+    [
+        { title: "add", listeners: [ { event: "click", handler: scope.on.add } ] },
+    ] } );
+
+    scope.controls[ "add" ].enable( scope.controls[ `${ scope.settings.collection }.tabs` ].enabled );
 
     var table = scope.imports.docs.ce( "table" );
     scope.imports.docs.ac( scope.getParent(), table );
