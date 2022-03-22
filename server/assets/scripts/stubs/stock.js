@@ -18,9 +18,10 @@ export async function load()
 
     new scope.imports.widgets.Input( { scope: scope, name: "label", required: true, type: "text", value: doc.getField( "label" ) } );
 
-    new scope.imports.widgets.Input( { scope: scope, name: "description", required: true, type: "text", value: doc.getField( "description" ) } );
+    new scope.imports.widgets.Input( { scope: scope, name: "description", type: "text", value: doc.getField( "description" ) } );
 
     await new scope.imports.widgets.Drilldown( { scope: scope, name: "category",
+    nobreak: true,
     widgets: 
     [ 
         { class: "Select", config: { name: "group", required: true, value: doc.getField( "group" ),

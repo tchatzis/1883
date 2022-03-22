@@ -8,13 +8,7 @@ export default function Radios( config )
     Config.call( config, config );
 
     var scope = this;
-        scope.name = config.mother ? config.mother.name : config.name;
-
-    config.doc = config.scope.getDoc();
-    config.default = [];
-
-    var data = config.doc.data[ scope.name ] || Object.assign( config.doc.data, { [ scope.name ]: config.default } )[ scope.name ];
-    console.log( data )
+    var data = this.getData( config );
 
     function check( input, value )
     {

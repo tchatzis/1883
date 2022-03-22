@@ -38,6 +38,7 @@ export default function Objects( config )
     this.multi = true;
     this.section = docs.ce( "section" );
     this.section.title = config.name;
+    docs.ac( config.parent, this.section );
 
     function change( e )
     {
@@ -64,7 +65,7 @@ export default function Objects( config )
 
         //TODO: dnd labels to reorder fields
 
-        docs.ac( config.parent, this.section );
+        
 
         this.populate();
     };

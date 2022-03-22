@@ -57,7 +57,15 @@ const Templates = function()
     };
 
     // getters
-    this.getDoc = () => scope.view[ scope.settings.action ][ scope.settings.id ].doc;
+    this.getDoc = () => 
+    {
+        var doc = scope.view[ scope.settings.action ][ scope.settings.id ].doc;
+            doc.id = doc.id || scope.settings.collection;
+            doc.data = doc.data || { data: [] };
+            doc.doc = doc.doc || { [ doc.id ]: doc.data };
+
+        return doc;
+    }
 
     this.getParent = () => scope.view[ scope.settings.action ][ scope.settings.id ].parent;
 

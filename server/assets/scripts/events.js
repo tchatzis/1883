@@ -9,7 +9,7 @@ const Events = function()
     {   
         e.preventDefault();
 
-        let doc = scope.view.data.data.doc;
+        let doc = new scope.Doc();
 
         scope.setDoc( "insert", doc );
         scope.setView( "insert" );

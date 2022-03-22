@@ -19,6 +19,7 @@ export default function( config, widgets )
                 var _config = new config.scope.imports.widgets.Config( widget.config.name, this, config );
                     _config.Form = id;
                     _config.parent = parent;
+                    _config.headless = true;
 
                 Object.assign( widget.config, _config );
 
@@ -26,6 +27,7 @@ export default function( config, widgets )
             } );
 
             new config.scope.imports.widgets.Control( { type: "submit", value: "\u002b",
+            headless: true,
             Form: id,
             parent: parent } );
 
@@ -97,7 +99,7 @@ export default function( config, widgets )
             if ( index < 0 )
             {
                 let label = docs.ce( "div" );
-                    label.classList.add( "column" );
+                    label.classList.add( "label" );
                     label.innerText = config.name || "\n";
                 docs.ac( wrapper, label );
             }

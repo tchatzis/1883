@@ -282,16 +282,6 @@
         color: green;
     }
 
-    section
-    {
-        border-bottom: var( --underline );
-        border-top: var( --underline );
-        color: black;
-        font-weight: bold;
-        text-transform: capitalize;
-        width: 100%;
-    }
-
     #sub
     {
         flex: 0 1 60%;

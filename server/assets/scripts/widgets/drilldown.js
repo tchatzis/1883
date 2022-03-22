@@ -1,5 +1,6 @@
 import Common from "./common.js";
 import Config from "./config.js";
+import docs from "../docs.js";
 
 export default function Drilldown( config )
 {   
@@ -20,10 +21,18 @@ export default function Drilldown( config )
     this.widgets = config.widgets;
     this.block( config );
     this.label.innerText = config.name || "\n";
-    this.label.classList.add( "column" );
+
+    this.section = docs.ce( "div" );
+    this.section.style.paddingLeft = "10px";
+    this.section.title = config.name;
+    if ( config.nobreak )
+        this.section.classList.add( "flex" );
+    docs.ac( config.parent, this.section );
 
     function init()
     {   
+        config.parent = scope.section;
+        
         config.widgets.forEach( ( widget, index ) => 
         {
             names.push( widget.config.name ); 

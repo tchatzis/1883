@@ -33,6 +33,27 @@ export default function()
 
     this.broadcast = ( config ) => {};// console.log( config.doc.data );
 
+    this.getData = ( config ) => 
+    {
+        config.doc = config.scope.getDoc();
+        config.default = [];
+        
+        this.name = config.mother ? config.mother.name : config.name;
+
+        var data = config.doc.data[ this.name ] || Object.assign( config.doc.data, { [ this.name ]: config.default } )[ this.name ];
+            data = Array.isArray( data ) ? [...data ] : data;
+
+        return data;
+    };
+
+    this.setArray = ( data, field ) =>
+    {
+        var array = data.hasOwnProperty( field ) ? data[ field ] : data;
+            array = Array.isArray( array ) ? array : [ array ];
+
+        return array;
+    };
+
     this.hidden = [ "data", "default", "doc", "element", "form", "headless", "hide", "listeners", "model", "mother", "nobreak", "parent", "scope", "values", "widgets" ];
 
     this.listeners = ( el, config, object ) =>

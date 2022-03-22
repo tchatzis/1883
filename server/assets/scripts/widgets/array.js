@@ -10,13 +10,13 @@ export default function Array( config )
     Common.call( this, config );
     Config.call( config, config );
 
-    config.doc = config.scope.getDoc();
+    /*config.doc = config.scope.getDoc();
     config.default = [];
 
-    var data = config.doc.data[ config.name ] || Object.assign( config.doc.data, { [ config.name ]: config.default } )[ config.name ];
+    var data = config.doc.data[ config.name ] || Object.assign( config.doc.data, { [ config.name ]: config.default } )[ config.name ];*/
 
     var scope = this;
-
+    var data = this.getData( config );
     var dnd = new DND();
 
     Multi.call( this, config, config.widgets );
@@ -58,7 +58,7 @@ export default function Array( config )
 
         scope.broadcast( config );  
         
-        dnd.init( this.section, ( e ) => docs.find( e, "[draggable='true']" ), data );
+        dnd.init( this.section, ( e ) => docs.find( e.target, "[draggable='true']" ), data );
     };
 
     this.init( config ); 

@@ -31,6 +31,11 @@
     transition: background-color 3000ms linear;
 }
 
+.field
+{
+    margin-bottom: 1em;
+}
+
 div.input
 {
     margin-bottom: 4px;
@@ -64,6 +69,7 @@ input[ type = checkbox ], input[ type = radio ]
 input[ type = image ], input[ type = submit ], input[ type = button ]
 {
     background-color: #222;
+    cursor: pointer;
     filter: grayscale( 1 );
 }
 
@@ -135,6 +141,12 @@ option
 .right
 {
     justify-content: right;
+    width: 100%;
+}
+
+section
+{
+    border-bottom: var( --underline );
     width: 100%;
 }
 

@@ -4,23 +4,18 @@ import docs from "../docs.js";
 
 export default function Checkboxes( config )
 {
+    config.multi = true;
+    
     Common.call( this, config );
     Config.call( config, config );
 
     var scope = this;
-        scope.name = config.mother ? config.mother.name : config.name;
-
-    config.doc = config.scope.getDoc();
-    config.default = [];
-    config.multi = true;
-
-    var data = config.doc.data[ scope.name ] || Object.assign( config.doc.data, { [ scope.name ]: config.default } )[ scope.name ];
-    var array = Array.isArray( data ) ? [...data ] : data;
+    var data = this.getData( config );
+    var array;
 
     function check( input, value )
     {        
-        array = array.hasOwnProperty( input.name ) ? array[ input.name ] : array;
-        array = Array.isArray( array ) ? array : [ array ];
+        array = scope.setArray( data, input.name );
 
         let predicate = array.some( val => val == value );
 
