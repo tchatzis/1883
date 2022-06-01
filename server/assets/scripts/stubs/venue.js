@@ -5,18 +5,20 @@ export async function load()
 
     let scope = this;
     let doc = scope.getDoc();
+    let widgets = scope.imports.widgets;
 
-    new scope.imports.widgets.Input( { scope: scope, name: "name", required: true, type: "text", value: doc.getField( "name" ) } );
-    new scope.imports.widgets.Array( { scope: scope, name: "rooms", value: doc.getField( "rooms" ),
-    widgets:
-    [
-        { class: "Input", config: { name: "label" } },
-        { class: "Input", config: { name: "type" } },
-        { class: "Input", config: { name: "description" } }
-    ] } );
-    new scope.imports.widgets.Array( { scope: scope, name: "storage", value: doc.getField( "storage" ),
-    widgets:
-    [
-        { class: "Input", config: { name: "label" } }
-    ] } );
+    widgets.add( { active: true, class: "Input", config: { name: "name", required: true, type: "text", value: doc.getField( "name" ) } } );
+
+    widgets.add( { active: true, class: "Arrays", config: { name: "rooms", value: doc.getField( "rooms" ),
+        widgets:
+        [
+            { class: "Input", config: { name: "label" } },
+            { class: "Input", config: { name: "type" } },
+            { class: "Input", config: { name: "description" } }
+        ] } } );
+    widgets.add( { active: true, class: "Arrays", config: { name: "storage", value: doc.getField( "storage" ),
+        widgets:
+        [
+            { class: "Input", config: { name: "label" } }
+        ] } } );
 }

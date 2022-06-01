@@ -6,5 +6,5 @@ export async function load()
         tabs.id = `${ scope.settings.collection }.tabs`;
     scope.imports.docs.ac( parent, tabs );
 
-    new scope.imports.widgets.Tabs( { scope: scope, field: scope.settings.tab, name: tabs.id, values: scope.getData( scope.settings.collection ), listeners: [ { event: "click", handler: scope.on.tab } ], parent: tabs } );
+    scope.imports.widgets.add( { class: "Tabs", config: { field: scope.settings.tab, name: tabs.id, values: scope.getCollection(), listeners: [ { event: "click", handler: scope.on.tab } ], parent: tabs } } );
 };

@@ -181,6 +181,19 @@ Object.defineProperty( Object.prototype, 'findKeyValue',
     enumerable: false
 } );
 
+Object.defineProperty( Object.prototype, 'findObject', 
+{
+    value: function( object )
+    {
+        var key = this.getKey();
+        var val = this.getValue();
+
+        return !!object.findKeyValue( key, val );
+    },
+
+    enumerable: false
+} );
+
 Object.defineProperty( Object.prototype, 'findValue', 
 {
     value: function( key, val )

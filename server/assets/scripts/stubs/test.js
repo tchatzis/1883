@@ -5,137 +5,154 @@ export async function load()
     
     let scope = this;
     let doc = scope.getDoc();
+    let widgets = scope.imports.widgets;
 
-    //console.log( doc );
+    widgets.add( { active: false, class: "Arrays", config: { name: "array", value: doc.getField( "array" ),
+        widgets:
+        [
+            { class: "Input", config: { name: "col0" } },
+            { class: "Input", config: { name: "col1" } },
+            { class: "Input", config: { name: "col2" } }
+        ] } } );
 
-    /*new scope.imports.widgets.Array( { scope: scope, name: "array", value: doc.getField( "array" ),
-    widgets:
-    [
-        { class: "Input", config: { name: "col0" } },
-        { class: "Input", config: { name: "col1" } },
-        { class: "Input", config: { name: "col2" } }
-    ] } );*/
+    widgets.add( { active: false, class: "Broadcaster", config: { name: "tito", audio: false, video: true } } );
 
-    /*new scope.imports.widgets.Calendar( { scope: scope, name: "calendar", value: new Date(), 
-    model:
-    {
-        data: scope.imports.data,
-        field: "name"
-    },
-    listeners: 
-    [ 
-        { event: "click", handler: ( e ) => scope.on.date( e, config ) }, 
-        { event: "select", handler: scope.on.select }
-    ] } );*/
+    widgets.add( { active: false, class: "Calendar", config: { name: "calendar", value: new Date( doc.getField( "date" ) ), 
+        model:
+        {
+            data: scope.imports.data,
+            field: "name"
+        },
+        listeners: 
+        [ 
+            { event: "click", handler: scope.on.date }, 
+            { event: "select", handler: scope.on.select }
+        ] } } );
 
-    new scope.imports.widgets.Checkboxes( { scope: scope, name: "checkboxes",
-    model:
-    {
-        data: scope.imports.data,
-        field: "label",
-        query: "select * from allergen",
-        sort: "label"
-    }, 
-    headless: false, nobreak: true } );
+    widgets.add( { active: false, class: "Checkboxes", config: { name: "checkboxes",
+        model:
+        {
+            data: scope.imports.data,
+            field: "label",
+            query: "select * from allergen",
+            sort: "label"
+        }, 
+        headless: false, 
+        nobreak: true } } );
 
-    //new scope.imports.widgets.Color( { scope: scope, name: "color", required: true, value: "#666666" } );
+    widgets.add( { active: false, class: "Color", config: { name: "color", required: true, value: doc.getField( "color" ) } } );
 
-    /*new scope.imports.widgets.Datalist( { scope: scope, name: "datalist", value: doc.getField( "group" ), 
-    model:
-    {
-        data: scope.imports.data, 
-        field: "label", 
-        query: `select * from group`, 
-        sort: "label"
-    },
-    listeners: [ { event: "dblclick", handler: scope.on.grow } ] } );*/
+    widgets.add( { active: false, class: "Datalist", config: { name: "datalist", value: doc.getField( "datalist" ), 
+        model:
+        {
+            data: scope.imports.data, 
+            field: "label", 
+            query: `select * from group`, 
+            sort: "label"
+        },
+        listeners: [ { event: "dblclick", handler: scope.on.grow } ] } } );
 
-    //new scope.imports.widgets.Date( { scope: scope, name: "date", required: true, value: new Date() } );
+    widgets.add( { active: false, class: "Date", config: { name: "date", required: true, value: new Date( doc.getField( "date" ) ) } } );
 
-    /*new scope.imports.widgets.Drilldown( { scope: scope, name: "drilldown",
-    widgets: 
-    [ 
-        { class: "Select", config: { name: "group", required: true, value: doc.getField( "group" ),
+    widgets.add( { active: false, class: "Draw", config: { name: "draw", required: true, value: doc.getField( "draw" ), width: 200, height: 100 } } );
+
+    widgets.add( { active: false, class: "Drilldown", config: { name: "drilldown",
+        widgets: 
+        [ 
+            { class: "Select", config: { name: "group", required: true, value: doc.getField( "group" ),
+                model:
+                {
+                    data: scope.imports.data,
+                    field: "label",
+                    query: `select * from group`, 
+                    sort: "label"  
+                } } }, 
+            { class: "Select", config: { name: "subgroup", required: true, value: doc.getField( "subgroup" ), 
+                model:
+                {
+                    array: [],
+                    data: scope.imports.data,
+                    field: "label"
+                } } }, 
+        ] } } );
+    
+    widgets.add( { active: false, class: "Input", config: { name: "input", required: true, type: "text", value: doc.getField( "name" ) } } );
+
+    widgets.add( { active: false, class: "Matrix", config: { name: "storage", value: doc.getField( "assign" ),
+        model:
+        {
+            data: scope.imports.data,
+            field: "name",
+            query: `select * from venue`,   
+        },
+        widgets:
+        [
+            { class: "Select", config: { name: "storage", 
+                model:
+                {
+                    field: "label" 
+                } } },
+            { class: "Input", config: { name: "inventory", type: "number", min: 0, 
+                model:
+                {
+                    field: "quantity"
+                } } 
+            }
+        ]
+     } } );
+
+    widgets.add( { active: false, class: "Objects", config: { name: "object",
+        widgets:
+        [ 
+            { class: "Select", config: { name: "content", required: true,
+                model:
+                {
+                    array: [ "table", "calendar", "offline" ],
+                    data: scope.imports.data,
+                } 
+            } },
+            { class: "Checkboxes", config: { name: "fields", required: true,
+                model:
+                {
+                    array: scope.imports.data.fields[ scope.settings.collection ],
+                    data: scope.imports.data,
+                },
+                nobreak: true 
+            } },
+            { class: "Input", config: { name: "sort", required: true } }, 
+            { class: "Input", config: { name: "tab", required: true } }, 
+        ] } } );
+
+    widgets.add( { active: false, class: "Popup", config: { name: "popup", height: "50vh", width: "50vw" } } );
+
+    widgets.add( { active: true, class: "QR", config: { name: "url", required: true, size: 256, value: `${ scope.settings.ip }:3000/rtc` } } );
+
+    widgets.add( { active: false, class: "Radios", config: { name: "radios", value: doc.getField( "radios" ),
+        model:
+        { 
+            data: scope.imports.data,
+            field: "label", 
+            query: "select * from temp", 
+            sort: "label"
+        }, 
+        headless: false } } );
+
+    widgets.add( { active: false, class: "Select", config: { name: "select", required: true, value: doc.getField( "select" ), 
         model:
         {
             data: scope.imports.data,
             field: "label",
             query: `select * from group`, 
             sort: "label"  
-        } } }, 
-        { class: "Select", config: { name: "subgroup", required: true, value: doc.getField( "subgroup" ), 
-        model:
-        {
-            array: [],
-            data: scope.imports.data,
-            field: "label"
-        } } }, 
-    ] } );*/
-    
-    //new scope.imports.widgets.Input( { scope: scope, name: "input", required: true, type: "text", value: doc.getField( "name" ) } );
+        } } } );
 
-    /*var matrix = 
-            {
-                id: id,
-                values: values,
-                parent: div,
-                name: "storage",
-                field: "name",
-                query: `select * from venue`,
-                collection: scope.collection,
-                widgets:
-                [
-                    { class: "Select", config: { name: "storage", field: "label" } },
-                    { class: "Input", config: { name: "inventory", field: "quantity", type: "number", min: 0 } }
-                ]
-            };
+    widgets.add( { active: false, class: "Text", config: { name: "text", required: true, value: doc.getField( "text" ) } } );
 
-    new widgets.Matrix( matrix );*/
+    widgets.add( { active: false, class: "Tuple", config: { name: "Tuple", value: doc.getField( "Tuple" ) } } );
 
-    new scope.imports.widgets.Object( { scope: scope, name: "object",
-    widgets:
-    [ 
-        { class: "Select", config: { name: "content", required: true,
-            model:
-            {
-                array: [ "table", "calendar", "offline" ],
-                data: scope.imports.data,
-            } 
-        } },
-        { class: "Checkboxes", config: { name: "fields", required: true,
-            model:
-            {
-                array: scope.imports.data.fields[ scope.settings.collection ],
-                data: scope.imports.data,
-            },
-            nobreak: true 
-        } },
-        { class: "Input", config: { name: "sort", required: true } }, 
-        { class: "Input", config: { name: "tab", required: true } }, 
-    ] } );
+    widgets.add( { active: false, class: "UPC", config: { name: "upc", required: false, value: null } } );
 
-    /*new scope.imports.widgets.Radios( { scope: scope, name: "radios",
-    model:
-    { 
-        data: scope.imports.data,
-        field: "label", 
-        query: "select * from group", 
-        sort: "label"
-    }, 
-    headless: false } );*/
-
-    /*new scope.imports.widgets.Select( { scope: scope, name: "select", required: true, value: doc.getField( "label" ), 
-    model:
-    {
-        data: scope.imports.data,
-        field: "label",
-        query: `select * from group`, 
-        sort: "label"  
-    } } );*/
-
-    //new scope.imports.widgets.Text( { scope: scope, name: "text", required: true, value: "Tito" } );
-
-    //new scope.imports.widgets.Tuple( { scope: scope, name: "Tuple" } );
+    widgets.add( { active: false, class: "Watcher", config: { name: "tito" } } );
 
     //console.dir( this );
 };

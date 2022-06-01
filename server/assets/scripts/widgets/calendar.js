@@ -10,7 +10,7 @@ export default function( config )
     var today = new Date();
     var step = 1000 * 60 * 60 * 24;
     var table, th, tbody, tr;
-    var parent = config.scope.getParent();
+    var parent = config.scope.form.parent || config.scope.getParent();
 
     this.data = config.model.data.store[ "event" ];
 

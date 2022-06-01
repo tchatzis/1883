@@ -8,7 +8,7 @@ export default function()
         
         for ( let att in config )
             if ( !this.hidden.concat( keys ).some( hidden => hidden == att ) )
-                if ( config[ att ] )
+                if ( config?.hasOwnProperty( att ) )
                     input.setAttribute( att, config[ att ] );
     };
     
@@ -34,27 +34,22 @@ export default function()
     this.broadcast = ( config ) => {};// console.log( config.doc.data );
 
     this.getData = ( config ) => 
-    {
+    {   
         config.doc = config.scope.getDoc();
-        config.default = [];
-        
+
         this.name = config.mother ? config.mother.name : config.name;
 
-        var data = config.doc.data[ this.name ] || Object.assign( config.doc.data, { [ this.name ]: config.default } )[ this.name ];
-            data = Array.isArray( data ) ? [...data ] : data;
-
-        return data;
+        return config.doc.data[ this.name ] || Object.assign( config.doc.data, { [ this.name ]: config.default } )[ this.name ];
     };
 
     this.setArray = ( data, field ) =>
     {
-        var array = data.hasOwnProperty( field ) ? data[ field ] : data;
-            array = Array.isArray( array ) ? array : [ array ];
+        var temp = data?.hasOwnProperty( field ) ? data[ field ] : data;
 
-        return array;
+        return Array.isArray( temp ) ? temp : [ temp ];
     };
 
-    this.hidden = [ "data", "default", "doc", "element", "form", "headless", "hide", "listeners", "model", "mother", "nobreak", "parent", "scope", "values", "widgets" ];
+    this.hidden = [ "data", "default", "doc", "element", "form", "headless", "hide", "listeners", "model", "mother", "multi", "nobreak", "parent", "scope", "values", "widgets" ];
 
     this.listeners = ( el, config, object ) =>
     {   

@@ -5,7 +5,8 @@ export async function load()
     
     let scope = this;
     let doc = scope.getDoc();
+    let widgets = scope.imports.widgets;
 
-    new scope.imports.widgets.Input( { scope: scope, name: "label", required: true, type: "input", value: doc.getField( "label" ) } );
-    new scope.imports.widgets.Input( { scope: scope, type: "number", name: "sequence", required: true, value: doc.getField( "sequence" ) || scope.imports.data.store[ scope.settings.collection ].length + 1 } );
+    widgets.add( { active: true, class: "Input", config: { name: "label", required: true, type: "input", value: doc.getField( "label" ) } } );
+    widgets.add( { active: true, class: "Input", config: { type: "number", name: "sequence", required: true, value: doc.getField( "sequence" ) || scope.imports.data.store[ scope.settings.collection ].length + 1 } } );
 }

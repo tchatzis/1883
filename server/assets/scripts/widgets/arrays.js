@@ -5,15 +5,12 @@ import docs from "../docs.js";
 import Multi from "./multi.js";
 import parse from "../forms.js";
 
-export default function Array( config )
+export default function Arrays( config )
 {
     Common.call( this, config );
     Config.call( config, config );
 
-    /*config.doc = config.scope.getDoc();
     config.default = [];
-
-    var data = config.doc.data[ config.name ] || Object.assign( config.doc.data, { [ config.name ]: config.default } )[ config.name ];*/
 
     var scope = this;
     var data = this.getData( config );

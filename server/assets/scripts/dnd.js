@@ -15,6 +15,7 @@ var DND = function()
         }
 
         scope.reorder( el );
+        scope.callback( el );
 
         return false;
     };
@@ -38,8 +39,9 @@ var DND = function()
             el.classList.remove( "over" );
     };
 
-    this.init = ( parent, find, values ) =>
+    this.init = ( parent, find, values, callback ) =>
     {
+        scope.callback = callback || function(){};
         scope.parent = parent;
         scope.find = find;
         scope.items = Array.from( scope.parent.children );

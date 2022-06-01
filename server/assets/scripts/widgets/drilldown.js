@@ -4,15 +4,14 @@ import docs from "../docs.js";
 
 export default function Drilldown( config )
 {   
+    config.default = {};
+    
     Common.call( this, config );
     Config.call( config, config );
 
-    config.doc = config.scope.getDoc();
-    config.default = {};
-
-    var data = config.doc.data?.[ config.name ] || Object.assign( config.doc.data, { [ config.name ]: config.default } )[ config.name ];
+    var data = this.getData( config );
     var scope = this;
-    var imports = config.scope.imports;
+    var widgets = config.scope.imports.widgets;
     var index = 0;
     var names = [];
 
@@ -78,7 +77,7 @@ export default function Drilldown( config )
             config.Form = scope.name; 
             config.value = config.value || data[ config.name ];
 
-            scope.select[ index ] = await new imports.widgets.Select( config );
+            scope.select[ index ] = await widgets.add( { class: "Select", config: config } );
             scope.select[ index ].input.dataset.index = index;
             scope.select[ index ].config = config;
 

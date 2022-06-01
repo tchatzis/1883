@@ -8,11 +8,9 @@ export default function Tuple( config )
     Common.call( this, config );
     Config.call( config, config );
 
-    config.doc = config.scope.getDoc();
     config.default = {};
 
-    var data = config.doc.data[ config.name ] || Object.assign( config.doc.data, { [ config.name ]: config.default } )[ config.name ];
-
+    var data = this.getData( config );
     var scope = this;
 
     var widgets =
@@ -46,17 +44,6 @@ export default function Tuple( config )
         delete data[ name.dataset.value ];
 
         scope.populate();
-    };
-
-    this.update = function( e )
-    {
-        e.preventDefault();
-        
-        var row = parse( e );
-        var name = Array.from( e.target.form.elements ).find( el => el.name == "name" );
-
-
-        data[ name.dataset.value ] = row.value;
     };
 
     this.populate = () => 

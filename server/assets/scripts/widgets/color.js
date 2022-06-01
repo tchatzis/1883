@@ -12,7 +12,7 @@ export default function Color( config )
     this.block( config );
     this.label.innerText = config.name || "\n";
     this.input = docs.ce( "input" );
-    this.attributes( config, input, [ "type" ] );
+    this.attributes( config, this.input, [ "type" ] );
     this.input.type = "hidden";
 
     docs.ac( this.parent, this.input );
@@ -21,6 +21,7 @@ export default function Color( config )
 
     var table = docs.ce( "table" );
         table.style.borderCollapse = "separate";
+        table.title = "calendar";
 
     var step = 15;
 
@@ -46,6 +47,8 @@ export default function Color( config )
                 td.dataset.color = hsl;
                 td.style.backgroundColor = hsl;
                 td.style.border = border[ b ];
+                td.style.borderRadius = "3px";
+                td.style.cursor = "pointer";
                 td.style.height = "0.75em";
                 td.style.padding = 0;
                 td.style.width = "1em";

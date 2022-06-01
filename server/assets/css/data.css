@@ -33,15 +33,15 @@
 
 .field
 {
-    margin-bottom: 1em;
+    margin: 0;
 }
 
-div.input
+/*div.input
 {
     margin-bottom: 4px;
-}
+}*/
 
-input, select, textarea, .option
+canvas, img, input, select, textarea, video, .option
 {
     background-color: #111;
     border: 1px solid transparent;
@@ -130,6 +130,21 @@ option
     border: 2px dotted #666;
 }
 
+.popup
+{
+    background-color: rgba( 0, 0, 0, 0.8 );
+    border: 1px solid #666;
+    border-radius: 8px;
+    position: absolute;
+    z-index: 1000;
+}
+
+#qr-reader
+{
+    height: 40vw;
+    width: 40vw;
+}
+
 .quill
 {
     background-color: white;
@@ -142,6 +157,13 @@ option
 {
     justify-content: right;
     width: 100%;
+}
+
+.scroll
+{
+    max-height: 70vh;
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 
 section

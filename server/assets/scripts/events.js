@@ -225,6 +225,8 @@ const Events = function()
                 url: `${ scope.settings.path }/${ scope.settings.action }/${ doc.id }`
             };
 
+            //console.warn( schema.doc )
+
             await scope.imports.data.update( schema );
 
             scope.setClear( scope.getParent() );

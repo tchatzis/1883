@@ -7,8 +7,8 @@ export default function Radios( config )
     Common.call( this, config );
     Config.call( config, config );
 
-    var scope = this;
     var data = this.getData( config );
+    var scope = this;
 
     function check( input, value )
     {

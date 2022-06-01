@@ -102,8 +102,8 @@ const Data = function()
 
         if ( params.query )
         {   
-            var split = params.query.split( " " );
-            var from = split.indexOf( "from" );
+            let split = params.query.split( " " );
+            let from = split.indexOf( "from" );
             let collection = split[ from + 1 ];
             
             if ( !scope.store[ collection ] )
@@ -157,6 +157,9 @@ const Data = function()
 
     this.select = async function( params )
     {
+        if ( !params.collection )
+            return null;
+        
         var response = await fetch( params.url, { method: "post" } );
         var result = await response.json();
         var collection = result.collection.substring( 1 );

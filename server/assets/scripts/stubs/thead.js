@@ -1,4 +1,4 @@
-export function load()
+export async function load()
 {
     var scope = this;
         scope.form = 
@@ -9,12 +9,13 @@ export function load()
             widgets: {}
         };
 
-    new scope.imports.widgets.Toolbar( { scope: scope, controls:
+    await scope.imports.widgets.add( { class: "Toolbar", config: { controls:
     [
         { title: "add", listeners: [ { event: "click", handler: scope.on.add } ] },
-    ] } );
+    ],
+    parent: scope.form.parent } } );
 
-    scope.controls[ "add" ].enable( scope.controls[ `${ scope.settings.collection }.tabs` ].enabled );
+    //scope.controls[ "add" ].enable( scope.controls[ `${ scope.settings.collection }.tabs` ].enabled );
 
     var table = scope.imports.docs.ce( "table" );
     scope.imports.docs.ac( scope.getParent(), table );

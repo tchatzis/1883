@@ -40,7 +40,7 @@ const Templates = function()
                 scope.view[ scope.settings.action ] = 
                 {
                     content: scope.elements.content,
-                    sub: Object.assign( scope.elements.sub, { doc: doc, load: false } )
+                    sub: Object.assign( scope.elements.sub || {}, { doc: doc, load: false } )
                 };
             },    
             update: ( doc ) => 
@@ -57,6 +57,8 @@ const Templates = function()
     };
 
     // getters
+    this.getCollection = ( collection ) => scope.imports.data.store[ collection || scope.settings.collection ];
+
     this.getDoc = () => 
     {
         var doc = scope.view[ scope.settings.action ][ scope.settings.id ].doc;
@@ -66,6 +68,18 @@ const Templates = function()
 
         return doc;
     }
+
+    this.getDocs = async ( parent ) =>
+    {   
+        var schema = scope.imports.data.schema[ scope.settings.collection ].getSchema( parent, scope.settings.action );
+
+        if ( !schema.existing )
+            await scope.imports.data.select( schema );
+
+        scope.imports.data.map.set( parent, scope.imports.data.store[ scope.settings.collection ] );
+    };
+
+    this.getMap = ( parent ) => scope.imports.data.map.get( parent );
 
     this.getParent = () => scope.view[ scope.settings.action ][ scope.settings.id ].parent;
 
@@ -102,6 +116,12 @@ const Templates = function()
             this.data = doc ? doc.getValue() : null;
             this.doc = doc || null;
             this.getField = ( key ) => this.data ? this.data[ key ] || "" : "";
+
+            if ( this.doc )
+            {
+                let _doc =  scope.imports.data.store[ this.collection ].find( row => row.getKey() == this.id );
+                    _doc = this.doc;
+            }
         };
 
         // format objects

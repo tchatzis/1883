@@ -14,7 +14,7 @@ export default function( config, widgets )
         {
             var { id, parent } = wrapper.call( this, -1, config );
 
-            widgets.forEach( widget => 
+            widgets.forEach( async ( widget ) => 
             {   
                 var _config = new config.scope.imports.widgets.Config( widget.config.name, this, config );
                     _config.Form = id;
@@ -23,13 +23,13 @@ export default function( config, widgets )
 
                 Object.assign( widget.config, _config );
 
-                new config.scope.imports.widgets[ widget.class ]( widget.config );
+                await config.scope.imports.widgets.add( { class:  widget.class, config: widget.config } );
             } );
 
-            new config.scope.imports.widgets.Control( { type: "submit", value: "\u002b",
+            config.scope.imports.widgets.add( { class: "Control", config: { type: "submit", value: "\u002b",
             headless: true,
             Form: id,
-            parent: parent } );
+            parent: parent } } );
 
             docs.ac( config.parent, this.section );
 
@@ -44,7 +44,7 @@ export default function( config, widgets )
             var { id, parent } = wrapper.call( this, index, config );
             var headless = [];
             
-            widgets.forEach( widget => 
+            widgets.forEach( async ( widget ) => 
             {
                 headless.push( widget.config.headless );
                 
@@ -58,7 +58,7 @@ export default function( config, widgets )
 
                 Object.assign( widget.config, _config );
 
-                new config.scope.imports.widgets[ widget.class ]( widget.config );
+                await config.scope.imports.widgets.add( { class: widget.class, config: widget.config } );
             } );
 
             function hide( button )
@@ -74,10 +74,10 @@ export default function( config, widgets )
             }
 
             if ( hide( "update" ) )
-                new config.scope.imports.widgets.Input( { scope: config.scope, type: "submit", Form: id, value: "\u2705", parent: parent, headless: true, "data-index": index } );
+                config.scope.imports.widgets.add( { class: "Input", config: { type: "submit", Form: id, value: "\u2705", parent: parent, headless: true, "data-index": index } } );
             
             if ( hide( "delete" ) ) 
-                new config.scope.imports.widgets.Input( { scope: config.scope, type: "button", Form: id, value: "\u274c", parent: parent, headless: true, "data-index": index, listeners: [ { event: "click", handler: this.delete } ] } );
+                config.scope.imports.widgets.add( { class: "Input", config: { type: "button", Form: id, value: "\u274c", parent: parent, headless: true, "data-index": index, listeners: [ { event: "click", handler: this.delete } ] } } );
         };
 
         function wrapper( index, config )

@@ -1,4 +1,4 @@
-module.exports.test = async ( server ) =>
+module.exports.test = async ( app ) =>
 {
     const http = require( "http" );
     
@@ -6,33 +6,36 @@ module.exports.test = async ( server ) =>
     {
         const request =  http.get( "http://www.google.com", () =>
         {
-            online( server );
+            online( app );
             resolve();
         } );
 
         request.on( "error", ( err ) => 
         {
             console.log( "offline" )
-            offline( server );
+            offline( app );
             resolve();
         } );
     } );
 }
 
-function offline( server )
+function offline( app )
 {
-    server.get( "/", ( req, res ) => 
+    console.log( "offline" );
+    
+    app.get( "/", ( req, res ) => 
     { 
         res.render( "offline", { title: "Offline" } );
     } ); 
 }
 
-async function online( server )
+async function online( app )
 {
     const fs = require( "fs" );
     const db = require( "./utilities/firebase" );
     const queries = require( "./utilities/queries" );
     const utils = require( "./utilities/functions" );
+    const { networkInterfaces } = require( "os" );
     const nav = {};
 
     const Menu = function( name )
@@ -65,6 +68,19 @@ async function online( server )
 
     const Route =
     {
+        Custom: function( label, endpoint)
+        {
+            var variables = {};
+                variables.content = endpoint.replace( "/", "" );
+                variables.ip = getIP();
+            
+            this.label = label;
+            this.endpoint = endpoint;
+            this.template = "static";
+            this.function = "custom";
+            this.variables = main.append( label, endpoint, variables );
+        },
+        
         Data: function()
         {
             this.label = null;
@@ -159,24 +175,54 @@ async function online( server )
         {
             var schema = doc.data();
 
-            if ( schema?.parameters?.fields )
-                schema.parameters.fields = schema.parameters.fields.map( field => field.field );
-
             routes.push( new Route[ schema.class ]( schema.label, schema.endpoint, schema.parameters ) );
         } );
 
         routes.push( new Route.Logout( "Log Out", "/logout" ) );
     } );
 
-    define( server );
+    define( app );
 
-    function define( server )
+    function getIP()
+    {
+        const nets = networkInterfaces();
+        const results = {};
+        
+        for ( const name of Object.keys( nets ) ) 
+        {
+            for ( const net of nets[ name ] ) 
+            {
+                // Skip over non-IPv4 and internal (i.e. 127.0.0.1) addresses
+                if ( net.family === 'IPv4' && !net.internal ) 
+                {
+                    if ( !results[ name ] )
+                    {
+                        results[ name ] = [];
+                    }
+
+                    results[ name ].push( net.address );
+                }
+            }
+        }
+
+        return results[ 'eth0' ][ 0 ];
+    }
+
+    function define( app )
     {
         var functions = {};
 
+            functions[ "custom" ] = function( params )
+            {
+                app.get( params.endpoint, ( req, res ) => 
+                {
+                    res.render( params.template, params.variables );
+                } );   
+            };  
+            
             functions[ "data" ] = async function( params )
             {
-                server.post( `/firestore`, async function( req, res )
+                app.post( `/firestore`, async function( req, res )
                 {                    
                     var path = new queries.DB( req.body );
 
@@ -191,7 +237,7 @@ async function online( server )
                     res.json( path.data );
                 } );
                 
-                server.post( `/path`, async function( req, res )
+                app.post( `/path`, async function( req, res )
                 {                    
                     var path = new queries.Path( req.body );
 
@@ -200,7 +246,7 @@ async function online( server )
                     res.json( path.data );
                 } );
 
-                server.post( `/query`, async function( req, res )
+                app.post( `/query`, async function( req, res )
                 {                                   
                     var query = new queries.Query( { query: req.body.query } );
 
@@ -212,15 +258,16 @@ async function online( server )
         
             functions[ "db" ] = async function( params )
             {     
-                server.get( `${ params.endpoint }`, ( req, res ) =>
+                app.get( `${ params.endpoint }`, ( req, res ) =>
                 {   
                     res.locals.path = req.path;
+                    params.variables.ip = getIP();
 
                     res.render( `db/${ params.template }`, params.variables );
                 } );
 
                 // CRUD
-                server.post( `/db/:from/delete/:id`, async function( req, res )
+                app.post( `/db/:from/delete/:id`, async function( req, res )
                 {    
                     var query = new queries.Query( { query: `delete from ${ req.params.from } where id = ${ req.params.id }` } );
 
@@ -229,7 +276,7 @@ async function online( server )
                     res.json( query.data );
                 } );
 
-                server.post( `/db/:from/insert`, async function( req, res )
+                app.post( `/db/:from/insert`, async function( req, res )
                 {      
                     var query = new queries.Query( { query: `insert into ${ req.params.from }` } );
 
@@ -238,7 +285,7 @@ async function online( server )
                     res.json( query.data );
                 } );
                 
-                server.post( `/db/:from/select`, async function( req, res )
+                app.post( `/db/:from/select`, async function( req, res )
                 {    
                     var query = new queries.Query( { query: `select * from ${ req.params.from }` } );
 
@@ -247,7 +294,7 @@ async function online( server )
                     res.json( query.data );
                 } );
 
-                server.post( `/db/:from/update/:id`, async function( req, res )
+                app.post( `/db/:from/update/:id`, async function( req, res )
                 {      
                     var query = new queries.Query( { query: `update ${ req.params.from } where id = ${ req.params.id }` } );
 
@@ -259,7 +306,7 @@ async function online( server )
         
             functions[ "directory" ] = function( params )
             {   
-                server.get( params.endpoint, ( req, res ) =>
+                app.get( params.endpoint, ( req, res ) =>
                 {   
                     utils.directoryInfo( params.variables.directory, callback );
 
@@ -274,7 +321,7 @@ async function online( server )
 
             functions[ "download" ] = function( params )
             {
-                server.get( params.endpoint, ( req, res ) => 
+                app.get( params.endpoint, ( req, res ) => 
                 { 
                     var info = utils.fileInfo( params.variables.directory, req.params.id );
                 
@@ -290,7 +337,7 @@ async function online( server )
 
             functions[ "file" ] = function( params )
             {   
-                server.get( params.endpoint, ( req, res ) => 
+                app.get( params.endpoint, ( req, res ) => 
                 {   
                     var info = utils.fileInfo( params.variables.directory, req.params.id );
                     
@@ -304,7 +351,7 @@ async function online( server )
 
             functions[ "logout" ] = function( params )
             {
-                server.get( params.endpoint, ( req, res ) => 
+                app.get( params.endpoint, ( req, res ) => 
                 { 
                     res.clearCookie( "auth" );
                     
@@ -314,7 +361,7 @@ async function online( server )
             
             functions[ "id" ] = function( params )
             {
-                server.get( params.endpoint, ( req, res ) =>
+                app.get( params.endpoint, ( req, res ) =>
                 {   
                     params.variables.id = req.params.id;
                     
@@ -324,8 +371,10 @@ async function online( server )
         
             functions[ "static" ] = function( params )
             {
-                server.get( params.endpoint, ( req, res ) => 
+                app.get( params.endpoint, ( req, res ) => 
                 { 
+                    params.variables.ip = getIP();
+                                        
                     res.render( params.template, params.variables );
                 } );   
             };    

@@ -1,6 +1,4 @@
-//
 import Data from "./data.js";
-//import DND from "./dnd.js";
 import docs from "./docs.js";
 import Events from "./events.js";
 import Templates from "./templates.js";
@@ -16,6 +14,7 @@ const Content = function()
         };
         scope.imports.widgets = new Widgets( scope );
         scope.controls = {};
+        scope.widgets = {};
 
     Events.call( scope );
 
@@ -37,26 +36,7 @@ const Content = function()
             return this;
         };
     }  
-    //var data = new Data();
-    //var dnd = new DND();
-    //var widgets = new Widgets( data ); 
-    //var delay = 3000;
 
-    // getters
-    this.getData = ( collection ) => scope.imports.data.store[ collection ];
-
-    this.getDocs = async ( parent ) =>
-    {   
-        var schema = scope.imports.data.schema[ scope.settings.collection ].getSchema( parent, scope.settings.action );
-
-        if ( !schema.existing )
-            await scope.imports.data.select( schema );
-
-        scope.imports.data.map.set( parent, scope.imports.data.store[ scope.settings.collection ] );
-    };
-
-    this.getMap = ( parent ) => scope.imports.data.map.get( parent );
-    
     // setters
     this.setClear = ( element ) => element.innerHTML = null;
     

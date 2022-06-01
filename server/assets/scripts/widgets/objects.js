@@ -11,13 +11,8 @@ export default function Objects( config )
     Common.call( this, config );
     Config.call( config, config );
 
-    config.doc = config.scope.getDoc();
-    config.default = {};
-
-    var data = config.doc.data[ config.name ] || Object.assign( config.doc.data, { [ config.name ]: config.default } )[ config.name ];
-
+    var data = this.getData( config );
     var scope = this;
-
     var rows = [];
 
     var form = docs.ce( "form" );
@@ -114,18 +109,17 @@ export default function Objects( config )
             var parent = docs.ce( "div" );
                 parent.classList.add( "flex" );
             
-            row.forEach( widget =>
+            row.forEach( async ( widget ) =>
             {
                 var _config = new config.scope.imports.widgets.Config( widget.config.name, this, config );
                     _config.Form = scope.name;
                     _config.headless = true;
                     _config.parent = parent;
+                docs.ac( scope.section, parent );
 
                 Object.assign( widget.config, _config );
 
-                new config.scope.imports.widgets[ widget.class ]( widget.config );
-                
-                docs.ac( scope.section, parent );
+                await new config.scope.imports.widgets[ widget.class ]( widget.config );
             } );
         } );
 

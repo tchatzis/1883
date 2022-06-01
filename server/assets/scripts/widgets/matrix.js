@@ -5,20 +5,21 @@ import Multi from "./multi.js";
 
 export default function Matrix( config )
 {
-    Common.call( this );
+    Common.call( this, config );
+    Config.call( config, config );
     Multi.call( this, config );
-    
-    config.doc = config.scope.getDoc();
-    config.default = {};
 
-    var data = config.doc.data?.[ config.name ] || Object.assign( config.doc.data, { [ config.name ]: config.default } )[ config.name ];
+    config.default = {};
+    
+    var data = this.getData( config );
     var scope = this;
+    var widgets = config.scope.imports.widgets;
 
     this.block( config );
     this.label.innerText = config.name || "\n";
 
     var table = docs.ce( "table" );
-    docs.ac( div, table );
+    docs.ac( this.parent, table );
 
     function change( e )
     {
@@ -31,22 +32,14 @@ export default function Matrix( config )
 
     this.update = function( forms )
     {   
-        var doc = config.doc[ config.name ];
-
-        if ( typeof doc !== "object" )
-            doc = Object.assign( config.doc, { [ config.name ]: {} } );
-
         forms.forEach( form =>
         {
+            var column = form.dataset.column;
+
+            data[ column ] = data[ column ] || {};
+            
             for ( let element of form.elements ) 
-            {    
-                if ( doc[ element.id ] )
-                    Object.assign( doc[ element.id ], { [ element.name ]: element.value } );
-                else if ( object[ config.name ] )
-                    Object.assign( doc[ config.name ], { [ element.id ]: { [ element.name ]: element.value } } );
-                else
-                    Object.assign( config.values[ config.name ], { [ element.id ]: { [ element.name ]: element.value } } );    
-            }
+                data[ column ][ element.name ] = element.value;
         } );
     }; 
     
@@ -61,17 +54,21 @@ export default function Matrix( config )
             var td = docs.ce( "td" );
             docs.ac( tr, td );
 
+            var forms = [];
+
             // add forms
             scope.data.docs.forEach( doc =>
             {
-                var id = Object.keys( doc )[ 0 ];
+                var id = doc.getKey();
+                var column = doc.getValue()[ config.model.field ];
                 var form = docs.ce( "form" );
                     form.setAttribute( "method", "post" );
                     form.id = id;
+                    form.dataset.column = column;
                 docs.ac( td, form );
-            } );
 
-            var forms = Array.from( td.children );
+                forms.push( form );
+            } );
 
             // column headers
             var columns = this.data.values;
@@ -79,12 +76,12 @@ export default function Matrix( config )
                 {    
                     var td = docs.ce( "td" );
                         td.classList.add( "cell" );
-                        td.innerText = doc[ config.field ];
+                        td.innerText = doc[ config.model.field ];
                     docs.ac( tr, td );
                 } );
 
             // widget rows
-            config.widgets.forEach( function( widget )
+            config.widgets.forEach( ( widget ) =>
             {  
                 var tr = docs.ce( "tr" );
                 docs.ac( table, tr );
@@ -98,23 +95,24 @@ export default function Matrix( config )
                 // select data for each cell
                 scope.data.docs.forEach( async ( _doc ) => 
                 {
-                    var id = _doc.getKey();
-                    var doc = _doc[ id ];
-                    var array = doc[ widget.config.name ] || [];
-
                     var td = docs.ce( "td" );
                         td.classList.add( "cell" );
                     docs.ac( tr, td );
+                    var id = _doc.getKey();
+                    var doc = _doc[ id ];
+                    var array = doc[ widget.config.name ] || [];
+                    var _config = new widgets.Config( widget.config.name, this, config );
+                        _config.parent = td;
+                        _config.Form = id;
+                        _config[ "data-column" ] = doc[ config.model.field ];
+                        _config.headless = true;
+                        _config.model = Object.assign( widget.config.model, { array: array, data: config.model.data } );
+                        _config.listeners = [ { event: "input", handler: change } ];
+                        _config.value = config.doc.getPath( [ config.name, doc[ config.field ], widget.config.name ] ).value;
 
-                    widget.config.parent = td;
-                    widget.config.Form = id;
-                    widget.config.id = doc[ config.field ];
-                    widget.config.headless = true;
-                    widget.config.array = array;
-                    widget.config.listeners = [ { event: "change", handler: ( e ) => change( e ) } ];
-                    widget.config.value = config.doc.getPath( [ config.name, doc[ config.field ], widget.config.name ] ).value;
+                    Object.assign( widget.config, _config );
 
-                    new widgets[ widget.class ]( widget.config ); 
+                    widgets.add( { active: true, class: widget.class, config: widget.config } ); 
                 } );
             } );
 

@@ -5,6 +5,7 @@ export async function load()
     
     let scope = this;
     let doc = scope.getDoc();
+    let widgets = scope.imports.widgets;
 
-    new scope.imports.widgets.Input( { scope: scope, name: "label", required: true, type: "text", value: doc.getField( "label" ) } );
+    widgets.add( { active: true, class: "Input", config: { name: "label", required: true, type: "text", value: doc.getField( "label" ) } } );
 }

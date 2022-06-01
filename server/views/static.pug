@@ -3,3 +3,30 @@ extends partials/layout
 block content
     header
         h1= title
+
+    div#content( data-ui = true )
+
+block sub    
+    div#sub( data-ui = true )
+
+block script 
+    script.
+        window.addEventListener( "load", () =>
+        {   
+            var variables = 
+            {
+                content: "!{ content }", 
+                ip: "!{ ip }", 
+                sub: "!{ sub }", 
+                tab: "!{ tab }", 
+                path: "!{ path }", 
+                sort: "!{ sort }", 
+                fields: "!{ fields }"
+            };
+
+            if ( variables.content )
+            {
+                let content = new window.app.Content();
+                    content.setContent( variables ); 
+            }
+        } );

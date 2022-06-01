@@ -5,45 +5,67 @@ export async function load()
     
     let scope = this;
     let doc = scope.getDoc();
+    let widgets = scope.imports.widgets;
 
-    new scope.imports.widgets.Input( { scope: scope, name: "label", required: true, type: "text", value: doc.getField( "label" ) } );
-    new scope.imports.widgets.Input( { scope: scope, name: "collection", type: "text", value: doc.getField( "collection" ) } );
-    new scope.imports.widgets.Input( { scope: scope, name: "endpoint", required: true, type: "text", value: doc.getField( "endpoint" ) } );
-    new scope.imports.widgets.Input( { scope: scope, name: "sequence", required: true, type: "number", value: doc.getField( "sequence" ) || scope.imports.data.store[ scope.settings.collection ].length + 1, min: 0 } );
+    widgets.add( { active: true, class: "Input", config: { name: "label", required: true, type: "text", value: doc.getField( "label" ) } } );
 
-    new scope.imports.widgets.Select( { scope: scope, name: "class", required: true, value: doc.getField( "class" ), 
-    model:
+    widgets.add( { active: true, class: "Input", config: { name: "collection", type: "text", value: doc.getField( "collection" ) } } );
+
+    widgets.add( { active: true, class: "Input", config: { name: "endpoint", required: true, type: "text", value: doc.getField( "endpoint" ) } } );
+
+    widgets.add( { active: true, class: "Input", config: { name: "sequence", required: true, type: "number", value: doc.getField( "sequence" ) || scope.imports.data.store[ scope.settings.collection ].length + 1, min: 0 } } );
+
+    widgets.add( { active: true, class: "Select", config: { name: "class", required: true, value: doc.getField( "class" ), 
+        model:
+        {
+            array: [ "Custom", "DB", "Static", "Download", "File", "Directory" ], 
+            data: scope.imports.data 
+        } } } );
+
+    widgets.add( { active: true, class: "Select", config: { name: "role", required: true, value: doc.getField( "role" ), 
+        model:
+        {
+            array: [ "public", "user", "admin", "developer" ], 
+            data: scope.imports.data 
+        } } } );
+
+    var collection = doc.getField( "collection" );
+
+    if ( collection )
     {
-        array: [ "DB", "Static", "Download", "File", "Directory" ], 
-        data: scope.imports.data 
-    } } );
-
-    new scope.imports.widgets.Select( { scope: scope, name: "role", required: true, value: doc.getField( "role" ), 
-    model:
-    {
-        array: [ "public", "user", "admin", "developer" ], 
-        data: scope.imports.data 
-    } } );
-
-    new scope.imports.widgets.Object( { scope: scope, name: "parameters",
-    widgets:
-    [ 
-        { class: "Select", config: { name: "content", required: true,
-            model:
+        widgets.add( { active: true, class: "Model", config: { name: "fields",
+            model: 
             {
-                array: [ "table", "calendar", "offline" ],
+                callback: next,
                 data: scope.imports.data,
-            } 
-        } },
-        { class: "Checkboxes", config: { name: "fields", required: true,
-            model:
-            {
-                array: scope.imports.data.fields[ doc.getField( "collection" ) ],
-                data: scope.imports.data,
-            },
-            nobreak: true 
-        } },
-        { class: "Input", config: { name: "sort", required: true } }, 
-        { class: "Input", config: { name: "tab", required: true } }, 
-    ] } );
+                query: `select * from ${ collection }`,
+                sort: null
+            } } } );
+
+        function next()
+        {
+            widgets.add( { active: true, class: "Objects", config: { name: "parameters",
+                widgets:
+                [ 
+                    { class: "Select", config: { name: "content", required: true,
+                        model:
+                        {
+                            array: [ "table", "calendar", "offline" ],
+                            data: scope.imports.data,
+                        } 
+                    } },
+                    { class: "Input", config: { name: "sub" } }, 
+                    { class: "Checkboxes", config: { name: "fields",
+                        model:
+                        {
+                            array: scope.imports.data.fields[ collection ],
+                            data: scope.imports.data
+                        },
+                        nobreak: true 
+                    } },
+                    { class: "Input", config: { name: "sort" } }, 
+                    { class: "Input", config: { name: "tab"} }, 
+                ] } } );
+        }
+    }
 }
