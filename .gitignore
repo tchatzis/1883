@@ -4,5 +4,6 @@
 **/documents
 **/downloads
 **/.vscode
+**/cert
 .firebaserc
 firestore.json
