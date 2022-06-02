@@ -41,5 +41,5 @@ app.use( "/images", express.static( path.join( __dirname, "assets/images" ) ) );
             console.log( `app running at ${ hostname }:${ port }` );
         } );
 
-    rtc.start( server );
+    //rtc.start( server );
 } )();

@@ -1,4 +1,5 @@
 import docs from "../docs.js";
+//import apikeys from "../../../../apikeys.js";
 
 export async function load()
 {
@@ -7,6 +8,7 @@ export async function load()
     var movement = 0;
     var position;
     var graph;
+    var debug = false;
 
     const px = "px";
     const fields = [ "symbol", "bidPrice", "bidSize", "lastPrice", "lastSize", "askPrice", "askSize", "volatility" ];
@@ -19,9 +21,12 @@ export async function load()
 
             position.quantity += quantity;
             position.investment += position.value( position.quote, quantity );
-            if ( quantity )
-                position.count.gains = 0;
             position.count.losses += ( 1 - !quantity );
+            if ( quantity )
+            {
+                position.count.gains = 0;
+                graph.mark( `${ action } ${ quantity } @ ${ format( position.quote, 2 ) }`, "red", "bottom" );
+            }
 
             log( action, position, quantity );
             
@@ -63,7 +68,10 @@ export async function load()
             position.investment -= position.value( position.quote, quantity );
             position.count.gains += ( 1 - !quantity );
             if ( quantity )
+            {
                 position.count.losses = 0;
+                graph.mark( `${ action } ${ quantity } @ ${ format( position.quote, 2 ) }`, "darkgreen", "top" );
+            }
 
             log( action, position, quantity );
             
@@ -117,8 +125,8 @@ export async function load()
             case "real":
                 const token = 
                 {
-                    "access_token": "TwHO6M9Ma1eGCPMcrc06hTaKuI+TO4fpuyw8Sz0M9QeOd5U/SqjpWKSBuADGHg+ku+fP6DSS/k8rUvBjvaw54kagrreP7DuAsblXQXVbo8FxE1L6ajS56u2l1tlkKhcpZbqyOmXtQikLSnwpe3IzhbS7cKf+aUbR92M21CVpXjIxAV+FL1QFCjNWaS302IYhnQn+Ck1tP1E7J04XiVT8De7wB2xfVgZTGgZLxozEYm4jkgbWnhu0IrODzLHklGeeQZxow4cPA3IezWtl+lIfpzxJq7Clb8LwBTlUeiZ16yDyGGlZw3PfFkcR3mFGGEZCURVgbWtryNlW6cnSVqJuq44tOHvEcawsUp3AyUlzEeF8syLgito3wOINznF8nCByjxU+Jvsq7E8hN2OShvrCaLZaCH32ERjL3xrjj5OSQD6BYlvfISubMcfcPU9cdKyXrQq+Vr93NPEoOo09PHEMIE/J8hbzOaegYsDVqPKwUVxAwdQLn1zSFBHYfpYRpxvuIjtTApaEdqCa2Ebikq0X7aqvjubqgyeDjjHJk100MQuG4LYrgoVi/JHHvlMcIpWo2zYroS5o8FiRrm1VG0qPAdTqtV2WGUhi0TxtCVG4M2eSyKABQSWzVrUF1eqTOL1Y3BlF6Kn0hfYogYI3uIViv5Tyj8ZvI+fndusewv4XSDwTbpWmRYcxXbYrJ2Bp6/tCbBJrG/SLzQn+emwA0wq1TKeb6/KRy9M/zr6GQcM++a8ScL0YaFv3CO7xblNos54TKks5vYiF53MuWd76MIx9PTNcfCKRbqPUjV332qGhlR5NkD7vbhpTi32WJXpyYA7PPvVgEPT504cIFQRuQcWtG4KM9ibEsMEeiiNFxo7ZKqKuR1JaSyEOR6xlJCnknxfcigSCVxUUxLCSggTVvA74sp8NljvrqDasd4MedLkBXm/0NIeKWN2mtKZUKHVcDE3zotONPFoJ7WrSxlK1TC80lIkmkVnwz2uKwX1QTSnn2X9JeTm+DVItTGQ0blfck5NOn4T5IsV7SDTkZHGURF/sOcOtn5FlglGWOIu9wldsDAyFljYkO9FLdHuxiqD7XM3v2CoRrH7zqxGpepRGV3u0odfdAHjKTWuw212FD3x19z9sWBHDJACbC00B75E",
-                    "refresh_token": "clpj43ufi+uohYjcnJ1xu0XwwTq9HhIO74/W2JyZJVGA/B7l3g9zgxdoGaNmfEcnyfvfzn2PK7/8FtK8d9J7QjIWftZWm3Z4UTBySBeE+55DyaXKkNzbPselZNtlGedMOX26h3Br9SAWFrwJqUBFlNt7w6abwUI7QQjMB72vcMDNcPqhvdSRl20TRuiNBpktJnmLJAw287g46jdVOAJmeon6dwM3b78DiX2wBNcNzPamM1o4XtL1JQkTqMDCEth0NiS7qvfr8cD4Cxz4RnAaqgd9T7dtWg9QPdpBexKD4xo3k+CKDO9u3ePZ9iwzYtlD+HSpwFH9QAF2Wmpotsu6G77JVmEh8l6wDCwLDfAjaI29I3FypWhbEfX3Bg3+32mvtfF/sKb55E9kyPVFtP2dYF36HUNutB4zrdP1sm9yuudygF/u0oIMgsGKpL5100MQuG4LYrgoVi/JHHvlWBbi3s5mfZVYIKrsksXxaF8ISvM2S5V+lHTQX2DQ/BbM17OKcM1dUCmlEXWIi9X+WnZ4/UTP7FKciEzdTVRvlwliVQSv5uInQbw27sBdOPf1a6JWaSLuU/6x0JviR7q6xxHmukrlY/kb7/p6GV57yClIHIVUSOLVtc5xv6EDihOgTQOoglvjN8rhrSZiCOxzvu6TtuPX2w7w35zk04IsjcPJVxsfB+e1rQBr26hRWtrXmJMoiDsrte6H2KTnwA/8k2hvBn1iGMw5gCku5Qyk6wJGT9UYmJ/6Dqz3IZdiTK/OJaHLirvGh2IgAAp3S2U+y+ZoKKxaE9/GvzOGkLCZ4dxjOtLZP9XE+6d3EOtnRBUCAA6zQ46VEJdYYcL+/oyYPenwMTMNzEa16RogiQHp2MUq98SArNEH6cIJneXgeEW2KBloG2X2il6zXUo=212FD3x19z9sWBHDJACbC00B75E",
+                    "access_token": "a",
+                    "refresh_token": "b",
                     "scope": "PlaceTrades AccountAccess MoveMoney",
                     "expires_in": 1800,
                     "refresh_token_expires_in": 7776000,
@@ -204,6 +212,10 @@ export async function load()
         }
 
         execute( action ); 
+        count();
+        plot();
+
+        position.price = position.quote;
     }
 
     function execute( action )
@@ -213,15 +225,11 @@ export async function load()
             actions[ action ].apply( null, [ action, position ] );
 
             iterations++;
-
-            var w = 2;
-            var value = 0;//( position.count.up - position.count.down ) / iterations;
-
-            graph.add( new Split( ( w + 1 ) * iterations, 0, value, w, 100, 0 ) );
         }
+    }
 
-        position.price = position.quote;
-
+    function count()
+    {
         // count movements
         if ( movement < 0 )
             position.count.down++;
@@ -369,7 +377,8 @@ export async function load()
         ];
         let output = fields.join( tab );
 
-        console.log( `%c ${ output }`, css );
+        if ( debug )
+            console.log( `%c ${ output }`, css );
     };
  
     function init()
@@ -377,28 +386,108 @@ export async function load()
         // ticker, price, quantity, low delta percent, high delta percent, size of shares percent
         position = new Position( "BKSY", 0.3, 100, 1, 1, 25 );
         
-        //;
-        graph = new Graph( parent );
+        // w, h, parent
+        graph = new Container( 200, 50, parent );
         //table();
         query();
     }
 
     // plotting functions
-    function Graph( parent )
+    function plot()
+    {
+        var params = {};
+            params.w = 8;
+            params.x = ( params.w + 1 ) * iterations;
+            params.lower = position.count.down / iterations;
+            params.upper = position.count.up / iterations;
+
+        graph.add( Dual, params );
+        graph.remove( params.x, params.w + 1 );
+    }
+
+    function Container( w, h, parent )
     {  
+        var x = 0;
+        var object;
+        var pad = 20;
+        
         var container = docs.ce( "div" );
             container.style.border = "1px solid #333";
             container.style.position = "relative"; 
-            container.style.height = 100 + px;     
+            container.style.width = w + px;
+            container.style.height = h + pad * 2 + px;   
+            container.style.overflowX = "hidden";  
         docs.ac( parent, container );  
 
-        this.add = function( object )
+        var slide = docs.ce( "div" );
+            slide.style.position = "relative"; 
+            slide.style.height = h + pad * 2 + px;
+        docs.ac( container, slide );
+
+        var bars = docs.ce( "div" );
+            bars.style.position = "relative"; 
+            bars.style.top = pad + px;
+            bars.style.height = h + px;
+        docs.ac( slide, bars );
+
+        this.add = function( Class, params )
         {
-            docs.ac( container, object.container );
-        }
+            x = params.x;
+            
+            // x, y, w, h, value1, value2, parent, padding
+            object = new Class( x, 0, params.w, h, params.lower, params.upper, slide, 0 );
+            docs.ac( bars, object.container );
+        };
+
+        this.mark = function( message, color, pos )
+        {
+            let mark = new Mark( x, message, color, pos );
+            docs.ac( slide, mark.container );
+
+            setTimeout( () => mark.container.style.display = "none", delay );
+
+            if ( object )
+            {
+                let current = object.container;
+                
+                current.style.backgroundColor = "black";
+
+                current.addEventListener( "mouseout", () => 
+                {
+                    mark.container.style.display = "none";
+                    current.style.backgroundColor = "black";
+                } );
+
+                object.container.addEventListener( "mouseover", () => 
+                {
+                    mark.container.style.display = "block";
+                    current.style.backgroundColor = "yellow";
+                } );
+            }
+        };
+
+        this.remove = function( v, s )
+        {
+            if ( v >= container.clientWidth - s )
+                slide.style.left = slide.offsetLeft - s + px;
+        };
     }
 
-    function Split( x, y, value, w, h, padding )
+    function Mark( x, message, color, pos )
+    {
+        this.container = docs.ce( "div" );
+        this.container.style.padding = 2 + px;
+        this.container.style.borderRadius = 4 + px;
+        this.container.style.position = "absolute";
+        this.container.style.left = x + px;
+        this.container.style[ pos ] = 0;
+        this.container.style.backgroundColor = color;
+        this.container.style.fontSize = "0.7em";
+        this.container.style.whiteSpace = "nowrap";
+        this.container.innerText = message;
+    }
+
+    function Dual( x, y, w, h, lower, upper, parent, padding )
     {
         var container = docs.ce( "div" );
             container.style.position = "absolute";
@@ -409,16 +498,14 @@ export async function load()
         docs.ac( parent, container );
 
         this.container = container;
-        this.value = value;
+        this.lower = lower;
+        this.upper = upper;
+        this.value = upper - lower;
 
         var cw = container.clientWidth;  
         var ch = container.clientHeight; 
         var hw = cw / 2;
         var hh = ch / 2;
-        
-        var v = value * 0.5;
-        var lower = ( v < 0 )  ? Math.abs( v ) : 1 - v;
-        var upper = ( v > 0 )  ? v : 1 - Math.abs( v );
 
         var axis, cc, width, height; 
         var colors = [ "darkred", "green" ];
@@ -443,8 +530,6 @@ export async function load()
             colors.reverse();
         }
 
-        console.log( lower, upper )
-
         new Bar( x, y, 0, 1, upper, container, { x: { size: width }, y: { size: height } }, axis, colors[ 0 ], true, padding );
         new Bar( x, y, 0, 1, lower, container, { x: { size: width }, y: { size: height } }, axis, colors[ 1 ], false, padding );
     }
@@ -466,6 +551,9 @@ export async function load()
         var e = value * c.size;
         var f = translate[ keys[ a ] ];
         var g = translate[ keys[ b ] ];
+
+        this.value = val;
+        this.normalized = value;
 
         var bar = docs.ce( "div" );
             bar.style.position = "absolute";

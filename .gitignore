@@ -7,3 +7,4 @@
 **/cert
 .firebaserc
 firestore.json
+tokens.json

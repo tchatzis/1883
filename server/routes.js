@@ -23,9 +23,9 @@ function offline( app )
 {
     console.log( "offline" );
     
-    app.get( "/", ( req, res ) => 
+    app.get( "/strategy", ( req, res ) => 
     { 
-        res.render( "offline", { title: "Offline" } );
+        res.render( "static", { title: "Offline", content: "strategy" } );
     } ); 
 }
 

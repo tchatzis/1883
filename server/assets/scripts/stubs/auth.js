@@ -6,7 +6,7 @@ export async function load()
     {
         grant_type: "authorization_code",
         access_type: "offline",
-        client_id: "MIYN2GKBASJXE1MGLQI3ABC4NPXUCPLX@AMER.OAUTHAP",
+        client_id: "c",
         redirect_uri: window.location.href.split( "?" )[ 0 ]
     };
     
