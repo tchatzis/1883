@@ -6,8 +6,8 @@ const bodyParser = require( "body-parser" );
 const https = require( "https" );
 const fs = require( "fs" );
 // ssl
-const key = fs.readFileSync( './cert/CA/localhost/localhost.decrypted.key' );
-const cert = fs.readFileSync( './cert/CA/localhost/localhost.crt' );
+const key = fs.readFileSync( './cert/localhost.key' );
+const cert = fs.readFileSync( './cert/localhost.crt' );
 // local
 const authorize = require( "./auth" );
 const routes = require( "./routes" );
@@ -15,7 +15,8 @@ const rtc = require( "./rtc.server" );
 
 const app = express();
 const hostname = "127.0.0.1";
-const port = 3000;
+const ssl = 3000;
+const port = 3001;
 
 app.set( "documents", path.join( __dirname, "assets/documents" ) );
 app.set( "views", path.join( __dirname, "views" ) );
@@ -35,11 +36,17 @@ app.use( "/images", express.static( path.join( __dirname, "assets/images" ) ) );
 {
     await routes.test( app );
 
+    var connections = new Set();
     var server = https.createServer( { key, cert }, app );
-        server.listen( port, () => 
+        server.listen( ssl, () => console.log( `https running at ${ hostname }:${ ssl }` ) );
+        server.on( 'connection', ( socket ) => 
         {
-            console.log( `app running at ${ hostname }:${ port }` );
+            connections.add( socket ); 
+            console.warn( connections.size );
         } );
+
+    
+    app.listen( port, () => console.log( `http running at ${ hostname }:${ port }` ) );
 
     //rtc.start( server );
 } )();

@@ -105,6 +105,14 @@ label
     padding: 0 2em 0 0.5em;
 }
 
+.mark
+{
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+    margin-right: 5px;
+}
+
 .object
 {
     margin-left: 20px;
@@ -157,6 +165,11 @@ option
 {
     justify-content: right;
     width: 100%;
+}
+
+.row
+{
+    padding: 1px;
 }
 
 .scroll

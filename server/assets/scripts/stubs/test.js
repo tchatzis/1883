@@ -5,8 +5,19 @@ export async function load()
     
     let scope = this;
     let doc = scope.getDoc();
+    let charts = scope.imports.charts;
     let widgets = scope.imports.widgets;
 
+    // charts
+    let chart = charts.init( { parent: sub, width: 400, height: 300, spacing: 20 } );
+        //chart.add( { class: "Pie", config: { value: [ 0.55, 0.25 ], size: 10, color: [ "orange", "darkred" ] } } );
+        chart.add( { class: "Ring", config: { value: [ 0.55, 0.25, 0.2 ], size: 10, color: [ "green", "red", "blue" ] } } );
+        //chart.add( { class: "Dual", config: { value: [ 0.75, 0.25 ], size: 10, color: [ "green", "red" ] } } );
+        //chart.add( { class: "Dual", config: { value: [ 0.75, 0.75 ], size: 10, color: [ "orange", "blue" ] } } );
+        //chart.add( { class: "Dual", config: { value: [ 0.35, 0.45 ], size: 10, color: [ "purple", "pink" ] } } );
+        //chart.add( { class: "Bar", config: { value: 0.55, size: 10, color: "gray" } } );
+
+    // widgets
     widgets.add( { active: false, class: "Arrays", config: { name: "array", value: doc.getField( "array" ),
         widgets:
         [
@@ -125,7 +136,7 @@ export async function load()
 
     widgets.add( { active: false, class: "Popup", config: { name: "popup", height: "50vh", width: "50vw" } } );
 
-    widgets.add( { active: true, class: "QR", config: { name: "url", required: true, size: 256, value: `${ scope.settings.ip }:3000/rtc` } } );
+    widgets.add( { active: false, class: "QR", config: { name: "url", required: true, size: 256, value: `${ scope.settings.ip }:3000/rtc` } } );
 
     widgets.add( { active: false, class: "Radios", config: { name: "radios", value: doc.getField( "radios" ),
         model:

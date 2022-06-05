@@ -1,3 +1,4 @@
+import Charts from "./charts.js";
 import Data from "./data.js";
 import docs from "./docs.js";
 import Events from "./events.js";
@@ -9,10 +10,12 @@ const Content = function()
     var scope = this;
         scope.imports =
         {
+            charts: new Charts( scope ),
             data: new Data(),
-            docs: docs
+            docs: docs,
+            widgets: new Widgets( scope )
         };
-        scope.imports.widgets = new Widgets( scope );
+        scope.charts = {};
         scope.controls = {};
         scope.widgets = {};
 

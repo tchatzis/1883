@@ -46,6 +46,7 @@ export default function Widgets( scope )
         "Editor", 
         "Input", 
         "Label", 
+        "Log",
         "Matrix", 
         "Model", 
         "Objects", 
